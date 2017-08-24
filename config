@@ -10,16 +10,18 @@ config = {
 		"apikey": "APIKEY"
 	},
 
-	"triggers": {
-		name: "HeartReply",
-		type: "ChatReplyTrigger",
-		options: {
-			matches: [],
-			responses: ["</3","<3"],
-			exact: false,
-			probability: 1,
+	"triggers": [
+		{
+			name: "HeartReply",
+			type: "ChatReplyTrigger",
+			options: {
+				matches: [],
+				responses: ["</3","<3"],
+				exact: false,
+				probability: 1,
+			}
 		}
-	}
+	]
 };
 
 module.exports = config;
