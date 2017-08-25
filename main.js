@@ -42,6 +42,11 @@ function getChannelID(name) {
     return channelID;
 }
 
+function getChannelName(channelID) {
+    var channel = discordBot.channels.get(channelID)
+    if (channel) return channel["name"];
+}
+
 function callCommand(message) {
     var tokens = utils.tokenize(message.content);
     var command = tokens[0];
@@ -59,6 +64,11 @@ commands["!bind"] = function(message, channelName, steamName) {
     var channelID = getChannelID(channelName);
     var steamID = getSteamID(steamName);
 
+    if (channelName === "bot") {
+        message.reply("bot is reserved for commands and can not be bound");
+        return;
+    }
+
     if (!steamID) {
         message.reply("Invalid Steam Name");
         return;
@@ -74,23 +84,22 @@ commands["!bind"] = function(message, channelName, steamName) {
     message.reply("Binded " + channelID + " To " + steamID);
 }
 
-commands["!unbindchanne"] = function(message) {
+commands["!cubind"] = function(channelName) {
+    var channelID = getChannelID(channelName);
     bind.unbindChannel(channelID);
 }
 
-commands["!test"] = function(message) {
-
+commands["!subind"] = function(message, steamNAme) {
+    var steamID = getSteamID(steamNAme);
+    bind.unbindSteam(steamID);
 }
 
-commands["!boop"] = function(message) {
-    message.reply("blep");
-}
 
-commands["!name"] = function(message, id) {
+commands["!sname"] = function(message, id) {
     message.reply(getSteamName(id));
 }
 
-commands["!id"] = function(message, name) {
+commands["!sid"] = function(message, name) {
     message.reply(getSteamID(name));
 }
 
@@ -98,9 +107,77 @@ commands["!cid"] = function(message, name) {
     message.reply(getChannelID(name));
 }
 
+commands["!cname"] = function(message, id) {
+    message.reply(getChannelName(id));
+}
+
+commands["!friends"] = function(message, search) {
+    var friends = [];
+
+    if (search) search = search.toLowerCase();
+
+    for (id in steamBot.users) {
+        var name = steamBot.users[id].player_name;
+
+        var friendBind = getChannelName(bind.getBindSteam(id));
+        if (friendBind) name = name + " -> " + friendBind;
+        if (steamBot.steamID.getSteamID64() === id) name += " -> bot";
+
+        if (!search || name.toLowerCase().includes(search) || (friendBind && friendBind.toLowerCase().includes(search))) {
+            friends.push(name);
+        }
+    }
+
+    message.reply("\n" + friends.join("\n"));
+}
+
+    commands["!binds"] = function(message, search) {
+        var binds = bind.getBinds();
+        var nameBinds = "\n"
+        search = search.toLocaleLowerCase();
+
+        for (channelID in binds) {
+            var steamID = binds[channelID];
+
+            var channelName = getChannelName(channelID);
+            var steamName = getSteamName(steamID);
+
+            if (!search || channelName.toLowerCase().includes(search) || steamName.toLowerCase().includes(search)) {
+                nameBinds = nameBinds + channelName + " -> " + steamName + "\n";
+            }
+        }
+
+        message.reply(nameBinds);
+
+    }
+
+    commands["!idbinds"] = function(message) {
+        var binds = bind.getBinds();
+        var nameBinds = "\n"
+        for (channelID in binds) {
+            var steamID = binds[channelID];
+
+            nameBinds = nameBinds + channelID + " -> " + steamID + "\n";
+        }
+
+        message.reply(nameBinds);
+
+    }
 
 
-//discord stuff
+commands["!boop"] = function(message) {
+    message.reply("blep");
+}
+
+commands["!channelname"] = commands["!cname"];
+commands["!channelid"] = commands["!cid"];
+commands["!steamname"] = commands["!sname"];
+commands["!steamid"] = commands["!sid"];
+
+
+
+
+//discord events
 discordBot.on('ready', () => {
     console.log('Discord bot is ready');
 });
@@ -115,13 +192,20 @@ discordBot.on('message', message => {
         var steamID = bind.getBindChannel(channelID);
 
         if (steamID) {
-            steamBot.chatMessage(steamID, message.content);
+            if (message.content) {
+                steamBot.chatMessage(steamID, message.content);
+            }
+
+            message.attachments.forEach( attachment => {
+                steamBot.chatMessage(steamID, attachment.url);
+            });
         }
     }
 
 
 });
 
+//steam events
 steamBot.on('loggedOn', function(details) {
     steamBot.setPersona(SteamUser.EPersonaState.Online);
 
@@ -173,7 +257,6 @@ if (process.argv[2] === "dry") {
     process.exit();
 } else {
         steamBot.logOn(config.steamOptions);
-
-		discordBot.login(config.discordToken);
+        discordBot.login(config.discordToken);
 }
 

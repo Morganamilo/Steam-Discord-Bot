@@ -50,3 +50,7 @@ exports.getBindChannel = function(channelID) {
 exports.getBindSteam = function(steamID) {
     return utils.keyOf(binds, steamID);
 }
+
+exports.getBinds = function() {
+    return binds;
+}
