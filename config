@@ -1,27 +1,8 @@
-config = {
-	"discordToken": "KEY",
+module.exports = {
+	"discordToken": "TOKEN",
 
-	"steamUsername": "USERNAME",
-	"steamPassword": "PASSWORD",
 	"steamOptions": {
-		//"twoFactorAuith":  "AUTH",
-		"autoconnect":    false,
-		"autoReconnect":  false,
-		"apikey": "APIKEY"
+        "accountName": "USERNAME",
+        "password": "PASSWORD"
 	},
-
-	"triggers": [
-		{
-			name: "HeartReply",
-			type: "ChatReplyTrigger",
-			options: {
-				matches: [],
-				responses: ["</3","<3"],
-				exact: false,
-				probability: 1,
-			}
-		}
-	]
 };
-
-module.exports = config;
