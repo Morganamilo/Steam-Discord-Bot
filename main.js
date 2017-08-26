@@ -1,8 +1,9 @@
+const fs = require("fs");
 const Discord = require('discord.js');
 const discordBot = new Discord.Client();
 
 //const ChatBot = require("steam-chat-bot").ChatBot;
-var SteamUser = require('steam-user');
+const SteamUser = require('steam-user');
 
 
 const config = require("./config");
@@ -13,6 +14,11 @@ const bind = require("./bind.js");
 //init steam bot
 var steamBot = new SteamUser()
 var commands = {};
+
+steamBot.setOptions(config.steamOptions)
+var sentryFile = fs.readFileSync("./steamdata/sentry.morganamilo.bin");
+steamBot.setSentry(sentryFile);
+
 
 function getSteamName(steamID) {
     if (steamBot.users[steamID])
@@ -134,7 +140,7 @@ commands["!friends"] = function(message, search) {
     commands["!binds"] = function(message, search) {
         var binds = bind.getBinds();
         var nameBinds = "\n"
-        search = search.toLocaleLowerCase();
+        if (search) search = search.toLowerCase();
 
         for (channelID in binds) {
             var steamID = binds[channelID];
@@ -179,7 +185,7 @@ commands["!steamid"] = commands["!sid"];
 
 //discord events
 discordBot.on('ready', () => {
-    console.log('Discord bot is ready');
+    console.log('Logged into Discord as ' + discordBot.user.username);
 });
 
 discordBot.on('message', message => {
@@ -256,7 +262,7 @@ if (process.argv[2] === "dry") {
 
     process.exit();
 } else {
-        steamBot.logOn(config.steamOptions);
-        discordBot.login(config.discordToken);
+    steamBot.logOn(config.steamConfig);
+    discordBot.login(config.discordToken);
 }
 
