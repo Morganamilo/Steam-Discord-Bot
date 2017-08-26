@@ -52,3 +52,8 @@ exports.keyOf = function(obj, value) {
         }
     }
 }
+
+exports.stripUnicode = function(str1){
+    str1 = str1.replace(/[^\x00-\x7F]/g, "_");
+    return str1;
+}
