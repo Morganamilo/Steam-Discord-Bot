@@ -1,23 +1,24 @@
 const fs = require("fs");
 
 const Discord = require('discord.js');
-const discordBot = new Discord.Client();
-
 const SteamUser = require('steam-user');
-
 
 const config = require("./config");
 const utils = require("./utils");
 const bind = require("./bind.js");
 
-
 //init steam bot
 var steamBot = new SteamUser()
-var commands = {};
-
 steamBot.setOptions(config.steamOptions)
 var sentryFile = fs.readFileSync("./steamdata/sentry.morganamilo.bin");
 steamBot.setSentry(sentryFile);
+
+//init discord bot
+const discordBot = new Discord.Client();
+
+const debug = true;
+
+var commands = {};
 
 
 function getSteamName(steamID) {
@@ -33,10 +34,10 @@ function getSteamID(name) {
     }
 }
 
-function getChannelID(name) {
+function getChannelID(server, name) {
     var channelID;
 
-    discordBot.channels.forEach(channel => {
+    server.channels.forEach(channel => {
         if (channel.constructor.name === "TextChannel") {
             if (channel.name === name) {
                 channelID = channel.id;
@@ -49,8 +50,8 @@ function getChannelID(name) {
 }
 
 function getChannelName(channelID) {
-    var channel = discordBot.channels.get(channelID)
-    if (channel) return channel["name"];
+    var channel = server.channels.get(channelID)
+    if (channel && channel.constructor.name === "TextChannel") return channel["name"];
 }
 
 function callCommand(message) {
@@ -65,18 +66,12 @@ function callCommand(message) {
     }
 }
 
-function makeChannel(message){
-    var server = message.guild;
-    var usrname = message.author.username;
-
-    server.createChannel(usrname, "text");
-}
-
-
-
 commands["!bind"] = function(message, channelName, steamName) {
-    var channelID = getChannelID(channelName);
+    var channelID = getChannelID(message.guild, channelName);
     var steamID = getSteamID(steamName);
+
+    var steamBind = bind.getBindSteam(steamID);
+    var channelBind = bind.getBindChannel(steamBind);
 
     if (channelName === "bot") {
         message.reply("bot is reserved for commands and can not be bound");
@@ -88,18 +83,32 @@ commands["!bind"] = function(message, channelName, steamName) {
         return;
     }
 
-    if (!channelID) {
-        message.reply("Invalid Channel Name");
+
+    if (steamBind) {
+        message.reply(steamName + " is already bound to " + getChannelName(steamBind));
+        return;
+    }
+
+    if (channelBind) {
+        message.reply(channelBind + "is already bound to " + getSteamName(channelBind));
         return;
     }
 
 
-    bind.bind(channelID, steamID);
-    message.reply("Binded " + channelID + " To " + steamID);
+    if (!channelID) {
+        var server = message.guild;
+
+        server.createChannel(channelName, "text").then(channel => {
+            bind.bind(channel.id, steamID);
+            message.reply("Binded " + channel.id + " To " + steamID);
+    }); } else {
+        bind.bind(channelID, steamID);
+        message.reply("Binded " + channelID + " To " + steamID);
+    }
 }
 
 commands["!cubind"] = function(message, channelName) {
-    var channelID = getChannelID(channelName);
+    var channelID = getChannelID(message.guild, channelName);
     bind.unbindChannel(channelID);
 }
 
@@ -118,7 +127,7 @@ commands["!sid"] = function(message, name) {
 }
 
 commands["!cid"] = function(message, name) {
-    message.reply(getChannelID(name));
+    message.reply(getChannelID(message.guild, name));
 }
 
 commands["!cname"] = function(message, id) {
@@ -145,38 +154,42 @@ commands["!friends"] = function(message, search) {
     message.reply("\n" + friends.join("\n"));
 }
 
-    commands["!binds"] = function(message, search) {
-        var binds = bind.getBinds();
-        var nameBinds = "\n"
-        if (search) search = search.toLowerCase();
+commands["!binds"] = function(message, search) {
+    var binds = bind.getBinds();
+    var nameBinds = "\n"
+    if (search) search = search.toLowerCase();
 
-        for (channelID in binds) {
-            var steamID = binds[channelID];
+    for (channelID in binds) {
+        var steamID = binds[channelID];
 
-            var channelName = getChannelName(channelID);
-            var steamName = getSteamName(steamID);
+        var channelName = getChannelName(channelID);
+        var steamName = getSteamName(steamID);
 
-            if (!search || channelName.toLowerCase().includes(search) || steamName.toLowerCase().includes(search)) {
-                nameBinds = nameBinds + channelName + " -> " + steamName + "\n";
-            }
+        if (!search || channelName.toLowerCase().includes(search) || steamName.toLowerCase().includes(search)) {
+            nameBinds = nameBinds + channelName + " -> " + steamName + "\n";
         }
-
-        message.reply(nameBinds);
-
     }
 
-    commands["!idbinds"] = function(message) {
-        var binds = bind.getBinds();
-        var nameBinds = "\n"
-        for (channelID in binds) {
-            var steamID = binds[channelID];
+    message.reply(nameBinds);
 
-            nameBinds = nameBinds + channelID + " -> " + steamID + "\n";
-        }
+}
 
-        message.reply(nameBinds);
+commands["!idbinds"] = function(message) {
+    var binds = bind.getBinds();
+    var nameBinds = "\n"
+    for (channelID in binds) {
+        var steamID = binds[channelID];
 
+        nameBinds = nameBinds + channelID + " -> " + steamID + "\n";
     }
+
+    message.reply(nameBinds);
+
+}
+
+commands["!unbindall"] = function() {
+    bind.unbindAll();
+}
 
 
 commands["!boop"] = function(message) {
@@ -227,7 +240,6 @@ steamBot.on('loggedOn', function(details) {
        console.log("Logged into Steam as " + steamBot.accountInfo.name);
     }, 1000);
 
-    //for (k in steamBot.myFriends) console.log(k);
 });
 
 steamBot.on('error', function(e) {
@@ -248,19 +260,14 @@ steamBot.on('accountInfo', function(name, country, authedMachines, flags, facebo
     steamBot.accountInfo = accountInfo;
 });
 
-steamBot.on('user', function(sid, user) {
-
-});
-
 steamBot.on('friendMessage', function(senderID, message) {
-	console.log(senderID, message);
     var steamID = senderID.getSteamID64()
     var channelID = bind.getBindSteam(steamID);
 
     if (channelID) {
         discordBot.channels.get(channelID).send(message);
     } else {
-        var server = discordBot.guilds.array()[0];
+        var server = discordBot.guilds.array()[0]; //just get the first server
         var username = getSteamName(steamID);
 
         server.createChannel(utils.stripUnicode(username), "text").then(channel => {

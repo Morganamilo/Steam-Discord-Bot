@@ -20,9 +20,7 @@ function loadFile() {
 function saveFile() {
     var jsonBinds = JSON.stringify(binds);
 
-    fs.writeFile(bindConfigPath, jsonBinds, function(err) {
-        if (err) throw err;
-    });
+    fs.writeFileSync(bindConfigPath, jsonBinds);
 }
 
 exports.bind = function(channelID, steamID) {
@@ -31,14 +29,14 @@ exports.bind = function(channelID, steamID) {
 }
 
 exports.unbindChannel = function(channelID) {
-    binds[channelID] = undefined;
+    delete binds[channelID];
     saveFile()
 }
 
 exports.unbindSteam = function(steamID) {
     var key = utils.keyOf(steamID);
 
-    if (key) binds[key] = undefined;
+    if (key) delete binds[key];
 
     saveFile()
 }
@@ -53,4 +51,9 @@ exports.getBindSteam = function(steamID) {
 
 exports.getBinds = function() {
     return binds;
+}
+
+exports.unbindAll = function() {
+    binds = {};
+    saveFile()
 }
