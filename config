@@ -1,8 +1,12 @@
 module.exports = {
-	"discordToken": "TOKEN",
+	"discordToken": "KEY",
 
-	"steamOptions": {
-        "accountName": "USERNAME",
-        "password": "PASSWORD"
+    "steamOptions": {
+        "dataDirectory": "./steamdata",
+    },
+
+	"steamConfig": {
+		"accountName": "USERNAME",
+		"password": "PASSWORD",
 	},
 };

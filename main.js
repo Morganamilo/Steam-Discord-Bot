@@ -1,8 +1,8 @@
 const fs = require("fs");
+
 const Discord = require('discord.js');
 const discordBot = new Discord.Client();
 
-//const ChatBot = require("steam-chat-bot").ChatBot;
 const SteamUser = require('steam-user');
 
 
