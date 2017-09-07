@@ -29,10 +29,10 @@ module.exports = function(bot) {
         return channelID;
     }
 
-    bot.getChannelName = function(channelID) {
+    bot.getChannelName = function(server, channelID) {
         let channelName;
 
-        bot.discordBot.channels.forEach( channel => {
+        server.channels.forEach( channel => {
             if (channel.id === channelID && channel.constructor.name === "TextChannel") {
                 channelName = channel.name;
                 return;

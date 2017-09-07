@@ -49,7 +49,7 @@ module.exports = function(bot) {
 
         //if steam user is bount
         if (steamBind) {
-            let cNameB = utils.discordCode(bot.getChannelName(steamBind));
+            let cNameB = utils.discordCode(bot.getChannelName(message.guild, steamBind));
             let sNameB = utils.discordCode(bot.getSteamName(bind.getBindChannel(steamBind)), true);
             message.reply("Steam user " + sNameB + " is already bound to channel " + cNameB);
             return;
@@ -58,7 +58,7 @@ module.exports = function(bot) {
         //if channel is bound
         if (channelBind) {
             let sNameB = utils.discordCode(bot.getSteamName(channelBind), true);
-            let cNameB = utils.discordCode(bot.getChannelName(bind.getBindSteam(channelBind)), true);
+            let cNameB = utils.discordCode(bot.getChannelName(message.guild, bind.getBindSteam(channelBind)), true);
             message.reply("Channel " + cNameB + " is already bound to Steam user " + sNameB);
             return;
         }
@@ -205,7 +205,7 @@ module.exports = function(bot) {
             return;
         }
         
-        let name = bot.getChannelName(channelID);
+        let name = bot.getChannelName(message.guild, channelID);
         
         if (name) {
             message.reply(utils.discordCode(name));
@@ -239,7 +239,7 @@ module.exports = function(bot) {
             let user = bot.steamBot.users[id];
             
             if (bot.isFriend(id)) {
-                let channelName = bot.getChannelName(bind.getBindSteam(id));
+                let channelName = bot.getChannelName(message.guild, bind.getBindSteam(id));
                 let steamName = user.player_name;
                 let lSteamName = steamName.toLowerCase();
                 
@@ -264,10 +264,11 @@ module.exports = function(bot) {
     
     commands["!channels"] = function(message, search) {     
         let str = "\n";
+        let server = message.guild;
         
         if (search) search = search.toLowerCase();
         
-        bot.discordBot.channels.forEach(channel => {
+        server.channels.forEach(channel => {
             let channelName = channel.name;
             let channelID = channel.id;
             let steamName = bot.getSteamName(bind.getBindChannel(channelID));
@@ -328,7 +329,7 @@ module.exports = function(bot) {
         for (channelID in binds) {
             let steamID = binds[channelID];
 
-            let channelName = bot.getChannelName(channelID);
+            let channelName = bot.getChannelName(message.guild, channelID);
             let steamName = bot.getSteamName(steamID);
 
             let thisBind =  utils.discordCode(channelName) + " <-> " + utils.discordCode(steamName) + "\n";
