@@ -55,8 +55,8 @@ module.exports.unbindChannel = function(channelID) {
 }
 
 module.exports.unbindSteam = function(steamID) {
-    let key = utils.keyOf(steamID);
-
+    let key = utils.keyOf(binds, steamID);
+    
     if (!key) {
         return module.exports.STEAM_NOT_BOUND;
     }

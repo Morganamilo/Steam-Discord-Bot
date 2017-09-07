@@ -65,4 +65,17 @@ module.exports = function(bot) {
             }
         }
     });
+    
+    bot.steamBot.on('friendMessageEcho', function(senderID, message) {
+        let channelID = bind.getBindSteam(senderID.getSteamID64());
+        
+        if (channelID) {
+            let channel = bot.discordBot.channels.get(channelID);
+            
+            if (channel) {
+                let stamName = bot.steamBot.users[senderID.getSteamID64()].player_name;
+                channel.send(utils.discordCode(stamName) + " -> " + message);
+            }
+        }
+    });
 }

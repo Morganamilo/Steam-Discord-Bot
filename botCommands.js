@@ -1,5 +1,8 @@
 const utils = require("./utils");
 const bind = require("./bind.js");
+const messageSettings = {
+  split: true  
+};
 
 module.exports = function(bot) {
     const commands = {};
@@ -259,7 +262,7 @@ module.exports = function(bot) {
             }
         }
         
-         message.reply(str);        
+         message.reply(str, messageSettings);        
     }
     
     commands["!channels"] = function(message, search) {     
