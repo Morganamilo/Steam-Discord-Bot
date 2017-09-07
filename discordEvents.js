@@ -1,4 +1,5 @@
 const bind = require("./bind.js");
+const config = require("./config");
 
 module.exports = function(bot) {
     bot.discordBot.on('ready', () => {
@@ -27,5 +28,34 @@ module.exports = function(bot) {
 
 
     });
+    
+    bot.discordBot.on("typingStart", (channel, user) => {
+        if (user.id === bot.discordBot.user.id) return;
+        if (!config.sendTyping) return;    
+        
+        let steamID = bind.getBindChannel(channel.id);
+        
+        if (steamID) {
+            bot.steamBot.chatTyping(steamID);
+        }
+        
+    });
+    
+    bot.discordBot.on("channelDelete", channel => {
+        bind.unbindChannel(channel.id)
+    });
+    
+    bot.discordBot.on("messageUpdate", (oldMessage, newMessage) => {
+        let channel = newMessage.channel;
+        
+        if (channel.lastMessageID === newMessage.id) {
+            let steamID = bind.getBindChannel(channel.id);
 
+            if (steamID) {
+                if (newMessage.content) {
+                    bot.steamBot.chatMessage(steamID, newMessage.content) + "*";
+                }
+            }   
+        }
+    });
 }

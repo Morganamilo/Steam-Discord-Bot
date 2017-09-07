@@ -1,5 +1,6 @@
 const utils = require("./utils");
 const bind = require("./bind.js");
+const config = require("./config");
 
 const SteamUser = require('steam-user');
 
@@ -45,6 +46,23 @@ module.exports = function(bot) {
                 bind.bind(channel.id, steamID);
                 channel.send(message);
             });
+        }
+    });
+    
+    bot.steamBot.on('friendTyping', function(senderID) {        
+        let channelID = bind.getBindSteam(senderID.getSteamID64());
+        if (!config.receiveTyping) return;
+        
+        if (channelID) {
+            let channel = bot.discordBot.channels.get(channelID);
+            
+            if (channel) {
+                channel.startTyping();
+                
+                setTimeout(function() {
+                    channel.stopTyping(true);
+                }, 5000);
+            }
         }
     });
 }
