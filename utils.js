@@ -1,4 +1,4 @@
-exports.tokenize = function(str) {
+module.exports.tokenize = function(str) {
     var inQuotes = false;
     var letters = str.split("");
     var words = [];
@@ -41,11 +41,11 @@ exports.tokenize = function(str) {
     return words;
 }
 
-exports.begins = function(str, begin) {
+module.exports.begins = function(str, begin) {
     return str.substr(0, begin.length) === begin;
 }
 
-exports.keyOf = function(obj, value) {
+module.exports.keyOf = function(obj, value) {
     for (key in obj) {
         if (obj[key] === value) {
             return key;
@@ -53,7 +53,24 @@ exports.keyOf = function(obj, value) {
     }
 }
 
-exports.stripUnicode = function(str1){
-    str1 = str1.replace(/[^\x00-\x7F]/g, "_");
-    return str1;
+module.exports.toChannelName = function(str){
+    str = str.replace(/[^0-9a-z_\-]/gi, "_");
+    return str;
+}
+
+module.exports.discordEscape = function(str) {
+    let controls = "\\*_`~";
+    
+    for (key in controls) {
+        let control = controls[key];
+        
+        str = str.replace(control, "\\" + control)
+    }
+    
+    return str
+}
+
+module.exports.discordCode = function(str) {
+    str = "`" + str + "`";
+    return str;
 }

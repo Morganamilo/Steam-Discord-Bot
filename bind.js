@@ -1,7 +1,12 @@
 const fs = require("fs");
 const utils = require("./utils.js");
-const bindConfigPath = "./bindconfig";
+const bindConfigPath = require("./config").bindConfigPath;
 
+module.exports.SUCCESS = 0;
+module.exports.CHANNEL_ALEADY_BOUND = 1;
+module.exports.STEAM_ALREADY_BOUND = 2;
+module.exports.CHANNEL_NOT_BOUND = 3;
+module.exports.STEAM_NOT_BOUND = 4;
 
 //make sure the file exists
 fs.appendFileSync(bindConfigPath, '');
@@ -9,51 +14,72 @@ if (fs.readFileSync(bindConfigPath).toString() === "") {
     fs.writeFileSync(bindConfigPath, "{}");
 }
 
-var binds;
+let binds;
 loadFile();
 
 function loadFile() {
-    var data = fs.readFileSync(bindConfigPath);
+    let data = fs.readFileSync(bindConfigPath);
     binds = JSON.parse(data);
 }
 
 function saveFile() {
-    var jsonBinds = JSON.stringify(binds);
+    let jsonBinds = JSON.stringify(binds);
 
     fs.writeFileSync(bindConfigPath, jsonBinds);
 }
 
-exports.bind = function(channelID, steamID) {
+module.exports.bind = function(channelID, steamID) {
+    if (binds[channelID]) {
+        return module.exports.CHANNEL_ALEADY_BOUND;
+    }
+    
+    if (utils.keyOf(binds, steamID)) {
+        return module.exports.STEAM_ALREADY_BOUND;    
+    }
+    
     binds[channelID] = steamID;
     saveFile();
+    
+    return module.exports.SUCCESS;
 }
 
-exports.unbindChannel = function(channelID) {
+module.exports.unbindChannel = function(channelID) {
+    if (!binds[channelID]) {
+        return module.exports.CHANNEL_NOT_BOUND;
+    }
+    
     delete binds[channelID];
     saveFile()
+    
+    return module.exports.SUCCESS;
 }
 
-exports.unbindSteam = function(steamID) {
-    var key = utils.keyOf(steamID);
+module.exports.unbindSteam = function(steamID) {
+    let key = utils.keyOf(steamID);
 
-    if (key) delete binds[key];
-
+    if (!key) {
+        return module.exports.STEAM_NOT_BOUND;
+    }
+    
+    delete binds[key];
     saveFile()
+    
+    return module.exports.SUCCESS
 }
 
-exports.getBindChannel = function(channelID) {
+module.exports.getBindChannel = function(channelID) {
     return binds[channelID];
 }
 
-exports.getBindSteam = function(steamID) {
+module.exports.getBindSteam = function(steamID) {
     return utils.keyOf(binds, steamID);
 }
 
-exports.getBinds = function() {
+module.exports.getBinds = function() {
     return binds;
 }
 
-exports.unbindAll = function() {
+module.exports.unbindAll = function() {
     binds = {};
     saveFile()
 }
