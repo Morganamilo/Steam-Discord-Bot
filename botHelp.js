@@ -18,7 +18,8 @@ module.exports = function(bot) {
 		"    `idchannels`    Lists all channels and their binds as IDs\n" +
 		"    `binds`    Lists all binds\n" +
 		"    `idbinds`    Lists all binds as IDs\n" +
-		"    `unbindall`    Unbinds all channels\n"
+		"    `unbindall`    Unbinds all channels\n" +
+        "    `sort`    Sorts binded channels alphabetically\n"
 	;
     
     help.bind =
@@ -113,9 +114,15 @@ module.exports = function(bot) {
     ;
     
     help.unbindall = 
-        "Unbinds all channels. This does not delete the channels\n" +
+        "Unbinds all channels. This does not delete the channels.\n" +
         "Usage:\n" +
         "    `!unbindall`\n"
+    ;
+    
+    help.unbindall = 
+        "Sorts binded channels alphabetically. Unbinded channels should be left at the top with binded channels underneath.\n" +
+        "Usage:\n" +
+        "    `!sort`\n"
     ;
     
     bot.help = help;

@@ -389,4 +389,35 @@ module.exports = function(bot) {
             commandFunc.apply(this, tokens);
         }
     }
+    
+    commands["!sort"] = function(message) {
+        let channelCollection = message.guild.channels;
+        let channels = [];
+        let noCount = 0;
+        
+        function compare(a,b) {
+            if (a.name > b.name) return 1;
+            if (a.name < b.name) return -1;
+            return 0;
+        }
+        
+        channelCollection.forEach(channel => {
+            if (channel.constructor.name === "TextChannel") {
+                if (bind.getBindChannel(channel.id)) {
+                    channels.push(channel);    
+                } else {
+                    noCount++;
+                }
+            }
+        });
+        
+        channels.sort(compare);
+        
+        for (k = 0; k < channels.length; k++) {
+            let channel = channels[k];
+            
+            channel.setPosition(k + noCount);
+        }
+        
+    }
 }
