@@ -387,7 +387,10 @@ module.exports = function(bot) {
 
         if (commandFunc) {
             commandFunc.apply(this, tokens);
+            return true;
         }
+        
+        return false;
     }
     
     commands["!sort"] = function(message) {
@@ -413,7 +416,7 @@ module.exports = function(bot) {
         
         channels.sort(compare);
         
-        for (k = 0; k < channels.length; k++) {
+        for (k = channels.length -1; k > 0; k--) {
             let channel = channels[k];
             
             channel.setPosition(k + noCount);

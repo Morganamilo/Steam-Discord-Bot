@@ -53,7 +53,7 @@ module.exports = function(bot) {
 
             if (steamID) {
                 if (newMessage.content) {
-                    bot.steamBot.chatMessage(steamID, newMessage.content) + "*";
+                    bot.steamBot.chatMessage(steamID, newMessage.content + "*");
                 }
             }   
         }

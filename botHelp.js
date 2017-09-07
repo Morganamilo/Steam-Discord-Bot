@@ -119,7 +119,7 @@ module.exports = function(bot) {
         "    `!unbindall`\n"
     ;
     
-    help.unbindall = 
+    help.sort = 
         "Sorts binded channels alphabetically. Unbinded channels should be left at the top with binded channels underneath.\n" +
         "Usage:\n" +
         "    `!sort`\n"
