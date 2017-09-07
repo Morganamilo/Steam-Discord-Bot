@@ -13,6 +13,7 @@ bot.steamBot.setOptions(config.steamOptions)
 
 require("./botUtils.js")(bot);
 require("./botCommands.js")(bot);
+require("./botHelp.js")(bot);
 require("./discordEvents.js")(bot);
 require("./steamEvents.js")(bot);
 

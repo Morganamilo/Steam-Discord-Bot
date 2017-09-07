@@ -71,6 +71,7 @@ module.exports.discordEscape = function(str) {
 }
 
 module.exports.discordCode = function(str) {
+    str = str.replace("`", "'")
     str = "`" + str + "`";
     return str;
 }

@@ -41,4 +41,8 @@ module.exports = function(bot) {
 
         return channelName;
     }
+    
+    bot.isFriend = function(steamID) {
+        return !!bot.steamBot.myFriends[steamID];
+    }
 }
