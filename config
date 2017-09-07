@@ -1,12 +1,16 @@
 module.exports = {
 	"discordToken": "KEY",
+	"bindConfigPath": "./bindconfig",
+	"sendTyping": true,
+	"receiveTyping": true,
 
-    "steamOptions": {
-        "dataDirectory": "./steamdata",
-    },
+	"steamOptions": {
+		"dataDirectory": "./steamdata",
+	},
 
 	"steamConfig": {
 		"accountName": "USERNAME",
 		"password": "PASSWORD",
 	},
 };
+
