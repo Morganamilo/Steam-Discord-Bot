@@ -54,7 +54,7 @@ module.exports.keyOf = function(obj, value) {
 }
 
 module.exports.toChannelName = function(str){
-    str = str.replace(/[^0-9a-z_\-]/gi, "_");
+    str = str.replace(/[^0-9a-z_\-]/gi, "_").toLowerCase();
     return str;
 }
 

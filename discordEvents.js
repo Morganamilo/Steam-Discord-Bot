@@ -46,6 +46,7 @@ module.exports = function(bot) {
     });
     
     bot.discordBot.on("messageUpdate", (oldMessage, newMessage) => {
+        if (message.author.id === bot.discordBot.user.id) return;
         let channel = newMessage.channel;
         
         if (channel.lastMessageID === newMessage.id) {

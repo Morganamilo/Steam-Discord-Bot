@@ -37,7 +37,12 @@ module.exports = function(bot) {
         let channelID = bind.getBindSteam(steamID);
 
         if (channelID) {
-            bot.discordBot.channels.get(channelID).send(message);
+            let channel = bot.discordBot.channels.get(channelID)
+            
+            if (channel) {
+                channel.send(message);
+            }
+            
         } else {
             let server = bot.discordBot.guilds.array()[0]; //just get the first server
             let username = bot.getSteamName(steamID);
@@ -49,9 +54,9 @@ module.exports = function(bot) {
         }
     });
     
-    bot.steamBot.on('friendTyping', function(senderID) {        
-        let channelID = bind.getBindSteam(senderID.getSteamID64());
+    bot.steamBot.on('friendTyping', function(senderID) {
         if (!config.receiveTyping) return;
+        let channelID = bind.getBindSteam(senderID.getSteamID64());
         
         if (channelID) {
             let channel = bot.discordBot.channels.get(channelID);
@@ -73,7 +78,7 @@ module.exports = function(bot) {
             let channel = bot.discordBot.channels.get(channelID);
             
             if (channel) {
-                let stamName = bot.steamBot.users[senderID.getSteamID64()].player_name;
+                let stamName = bot.steamBot.users[bot.steamBot.steamID.getSteamID64()].player_name;
                 channel.send(utils.discordCode(stamName) + " -> " + message);
             }
         }

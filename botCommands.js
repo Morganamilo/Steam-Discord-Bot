@@ -50,7 +50,7 @@ module.exports = function(bot) {
             return;
         }
 
-        //if steam user is bount
+        //if steam user is bound
         if (steamBind) {
             let cNameB = utils.discordCode(bot.getChannelName(message.guild, steamBind));
             let sNameB = utils.discordCode(bot.getSteamName(bind.getBindChannel(steamBind)), true);
@@ -134,11 +134,11 @@ module.exports = function(bot) {
         channelName = utils.toChannelName(channelName);
         
         let server = message.guild
-        server.createChannel(channelName, "text").catch(e => {
+        server.createChannel(channelName, "text").then(channel => {
+            message.reply("Created channel " + utils.discordCode(channelName));
+        }).catch(e => {
             message.reply("Failed to make channel");
             console.log(e);
-        }).then(channel => {
-            message.reply("Created channel " + utils.discordCode(channelName));
         });
     }
     
@@ -159,7 +159,7 @@ module.exports = function(bot) {
             let channelBind = bind.getBindChannel(channelID);
             
             if (channelBind && bind.unbindChannel(channelID) == bind.SUCCESS) {
-                reply = "Unbound " + utils.discordCode(channelName) + "\n";
+                reply += "Unbound " + utils.discordCode(channelName) + "\n";
             }
             
             channel.delete().then(channel => {
@@ -335,6 +335,14 @@ module.exports = function(bot) {
             let channelName = bot.getChannelName(message.guild, channelID);
             let steamName = bot.getSteamName(steamID);
 
+            if (!channelName) {
+                channelName = "Missing"
+            }
+            
+            if (!steamName) {
+                steamName = "Missing"
+            }
+            
             let thisBind =  utils.discordCode(channelName) + " <-> " + utils.discordCode(steamName) + "\n";
             
             if (!search) {
