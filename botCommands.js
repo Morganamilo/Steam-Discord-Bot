@@ -561,7 +561,7 @@ module.exports = function(bot) {
                 if (cAccount.steam) {
                     reply += t3 + "Exists on Steam as" + utils.discordCode(cAccount.steam.player_name) + "\n";
                 } else {
-                    reply += t3 + utils.discordUnderline("Does not exit on Steam") + "\n";
+                    reply += t3 + utils.discordUnderline("Does not exist on Steam") + "\n";
                 }
                 
             } else {
@@ -593,7 +593,7 @@ module.exports = function(bot) {
                     reply += t3 + "Exists on Discord as" + utils.discordCode(sAccount.channel.name) + "\n";
                     reply += t3 + "In server " + utils.discordCode(sAccount.channel.guild.name) + "\n";
                 } else {
-                    reply += t3 + utils.discordUnderline("does not exit on Discord") + "\n";
+                    reply += t3 + utils.discordUnderline("Does not exist on Discord") + "\n";
                 }
                 
             } else {

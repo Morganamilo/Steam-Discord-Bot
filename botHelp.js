@@ -5,7 +5,7 @@ module.exports = function(bot) {
         "Help and usage for all commands. Do `!help <command>` for more detail about a specific command.\n" +
 		"    `help`    Shows this help message\n" +
         "    `bind`    Binds a discord channel to a steam user\n" +
-        "    `ubind`    Unbinds a chennel useing the channel or username"
+        "    `ubind`    Unbinds a chennel useing the channel or username\n"+
         "    `cubind`    Unbinds a channel using the channel name\n" +
         "    `subind`    Unbinds a channel using the steam username\n" +
 		"    `mkchannel`    Creates a discord channel\n" +
@@ -20,8 +20,8 @@ module.exports = function(bot) {
 		"    `idchannels`    Lists all channels and their binds as IDs\n" +
 		"    `binds`    Lists all binds\n" +
 		"    `idbinds`    Lists all binds as IDs\n" +
-        "    `vbids`    List all binds verbosely" +
-        "    `fixbinds` Fixes broken binds" +
+        "    `vbids`    List all binds verbosely\n" +
+        "    `fixbinds` Fixes broken binds\n" +
 		"    `idbinds`    Lists all binds as IDs\n" +
 		"    `unbindall`    Unbinds all channels\n" +
         "    `sort`    Sorts binded channels alphabetically\n"
