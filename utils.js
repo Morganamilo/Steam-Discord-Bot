@@ -87,3 +87,34 @@ module.exports.discordBold = function(str) {
     str = "**" + str + "**";
     return str;
 }
+
+module.exports.strCompare = function(_a, _b) {
+    for (k in _a) {
+        let A = _a[k];
+        let B = _b[k];
+        
+        if (!A) {
+            return 1;
+        }
+        
+        if (!B) {
+            return -1;
+        }
+        
+        let a = A.toLowerCase();
+        let b = B.toLowerCase();
+        
+        if (a > b) return 1;
+        if (a < b) return -1;
+        
+        if (a !== A && b === B) {
+            return -1;
+        }
+        
+        if (b !== B && a === A) {
+            return 1;
+        }
+    }
+    
+    return 0;
+}

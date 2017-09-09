@@ -39,7 +39,7 @@ module.exports = function(bot) {
         let channelID = account.channelID;
 
         if (account.channel) {
-            channel.send(message);
+            account.channel.send(message);
         } else {
             let server = bot.discordBot.guilds.array()[0]; //just get the first server
             let username = utils.toChannelName(bot.getSteamName(steamID).substr(1, 100));

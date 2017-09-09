@@ -5,6 +5,7 @@ module.exports = function(bot) {
         "Help and usage for all commands. Do `!help <command>` for more detail about a specific command.\n" +
 		"    `help`    Shows this help message\n" +
         "    `bind`    Binds a discord channel to a steam user\n" +
+        "    `ubind`    Unbinds a chennel useing the channel or username"
         "    `cubind`    Unbinds a channel using the channel name\n" +
         "    `subind`    Unbinds a channel using the steam username\n" +
 		"    `mkchannel`    Creates a discord channel\n" +
@@ -14,11 +15,13 @@ module.exports = function(bot) {
 		"    `cname`     Gets the channel name associated with a channel ID\n" +
 		"    `cid`     Gets the channel ID associated with a channel name\n" +
 		"    `friends`    Lists all steam friends and their binds\n" +
+		"    `idfriends`    Lists all steam friends and their binds as IDs\n" +
 		"    `channels`    Lists all chanels and their binds\n" +
 		"    `idchannels`    Lists all channels and their binds as IDs\n" +
 		"    `binds`    Lists all binds\n" +
+		"    `idbinds`    Lists all binds as IDs\n" +
         "    `vbids`    List all binds verbosely" +
-        "    `fixvinds` Fixes broken binds" +
+        "    `fixbinds` Fixes broken binds" +
 		"    `idbinds`    Lists all binds as IDs\n" +
 		"    `unbindall`    Unbinds all channels\n" +
         "    `sort`    Sorts binded channels alphabetically\n"
@@ -31,15 +34,21 @@ module.exports = function(bot) {
         "    `!bind <steam name>`\n"
     ;
     
+    help.ubind =
+        "Unbinds a channel using the channel name or the steam name. If the entered name matches a channel and a steam user the channel will take priority. This does not delete the channel.\n" +
+        "Usage:\n" +
+        "    `!ubind <channel name>`\n" +
+        "    `!ubind <steam name>`\n"
+    ;
     
     help.cubind =
-        "Unbinds a channel using the channel name, it does not delete the channel.\n" +
+        "Unbinds a channel using the channel name. This does not delete the channel.\n" +
         "Usage:\n" +
         "    `!cubind <channel name>`\n"
     ;
     
     help.subind =
-        "Unbinds a channel using the steam username, it does not delete the channel.\n" +
+        "Unbinds a channel using the steam username. This does not delete the channel.\n" +
         "Usage:\n" +
         "    `!subind <steam name>`\n"
     ;
@@ -81,7 +90,14 @@ module.exports = function(bot) {
     ;
     
     help.friends =
-        "Lists all steam friends, if bound also lists the channel they are bound to. Optionaly a seach term can be used where the list will only contain entries where the steam name or channel name contains the search term.\n" +
+        "Lists all steam friends, if bound also lists the channel they are bound to. Optionaly a seach term can be used where the list will only contain where the search term is included in the channel name or Steam name or channel ID or steam ID.\n" +
+        "Usage:\n" +
+        "    `!friends`\n" +
+        "    `!friends <search>`\n"
+    ;
+    
+    help.idfriends =
+        "Lists all steam friends as IDs, if bound also lists the channel ID they are bound to. Optionaly a seach term can be used where the list will only contain where the search term is included in the channel name or Steam name or channel ID or steam ID.\n" +
         "Usage:\n" +
         "    `!friends`\n" +
         "    `!friends <search>`\n"
@@ -95,17 +111,24 @@ module.exports = function(bot) {
     ;
     
     help.idchannels =
-        "Lists all channels IDs belonging to the server the message originated from, if bound also list the steam user IDs it is bound to. Optionaly a seach term can be used where the list will only contain entries where the steam ID or channel ID contains the search term.\n" +
+        "Lists all channels IDs belonging to the server the message originated from, if bound also list the steam user IDs it is bound to. Optionaly a seach term can be used where the list will only contain where the search term is included in the channel name or Steam name or channel ID or steam ID.\n" +
         "Usage:\n" +
         "    `!idchannels`\n" +
         "    `!idchannels <search>`\n"
     ;
     
     help.binds = 
-        "Lists all binds, showing the channel name and steam name. Optionaly a seach term can be used where the list will only contain entries where the steam name or channel name contains the search term.\n" +
+        "Lists all binds, showing the channel name and steam name. Optionaly a seach term can be used where the list will only contain where the search term is included in the channel name or Steam name or channel ID or steam ID.\n" +
         "Usage:\n" +
         "    `!binds`\n" +
         "    `!binds <search>`\n"
+    ;
+    
+    help.idbinds = 
+        "Lists all binds as IDs, showing the channel ID and steam ID. Optionaly a seach term can be used where the list will only contain where the search term is included in the channel name or Steam name or channel ID or steam ID.\n" +
+        "Usage:\n" +
+        "    `!idbinds`\n" +
+        "    `!idbinds <search>`\n"
     ;
     
     help.vbinds =
@@ -118,7 +141,7 @@ module.exports = function(bot) {
         "    `!binds sname <steam name>`\n" 
     ;
     
-    help.vbinds =
+    help.fixbinds =
         "Fixes all broken binds. Any bind with an ID that can't be resloved to either a Discord channel or Steam user is deleted\n" +
         "Usage:\n" +
         "    `!fixvinds`\n"

@@ -45,13 +45,13 @@ module.exports.bind = function(channelID, steamID) {
 
 module.exports.unbindChannel = function(channelID) {
     if (!binds[channelID]) {
-        return module.exports.CHANNEL_NOT_BOUND;
+        return;
     }
     
     delete binds[channelID];
     saveFile()
     
-    return module.exports.SUCCESS;
+    return channelID;
 }
 
 module.exports.unbindSteam = function(steamID) {
@@ -61,10 +61,11 @@ module.exports.unbindSteam = function(steamID) {
         return module.exports.STEAM_NOT_BOUND;
     }
     
+    let value = binds[key]
     delete binds[key];
     saveFile()
     
-    return module.exports.SUCCESS
+    return value
 }
 
 module.exports.getBindChannel = function(channelID) {
