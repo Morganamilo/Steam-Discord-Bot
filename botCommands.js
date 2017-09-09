@@ -536,6 +536,47 @@ module.exports = function(bot) {
         
         message.reply(reply, messageSettings);
     }
+    
+    commands["!fixbinds"] = function(message) {
+        let binds = bind.getBinds();
+        let reply = "";
+        
+        for (channelID in binds) {
+            let steamID = binds[channelID];
+            
+            let account = bot.getAccounts(channelID, steamID);
+            
+            if (!account.channel || !account.steam) {
+                let channelName;
+                let steamName;
+              
+                if (!account.channel) {
+                    channelName = utils.discordUnderline(utils.discordCode("Broken ID"));
+                } else {
+                    channelName = utils.discordCode(account.channel.name);
+                }
+                
+                if (!account.steam) {
+                    steamName = utils.discordUnderline("Broken ID");
+                } else {
+                    steamName = account.steam.player_name
+                }
+                
+                reply += "Unbinded " + channelName + " <-> " + steamName + "\n";
+                reply += "Unbinded " + utils.discordUnderline(utils.discordCode(channelID)) + " <-> " + utils.discordUnderline(utils.discordCode(steamID)) + "\n";
+                reply += "\n"
+                
+                bind.unbindChannel(channelID);
+                bind.unbindSteam(steamID);
+            }
+        }
+        
+        if (reply === "") {
+            reply = "Nothing to fix :D";
+        }
+        
+        message.reply(reply);
+    }
         
     bot.commands = commands;
         
