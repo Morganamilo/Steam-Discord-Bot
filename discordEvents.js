@@ -4,6 +4,10 @@ const config = require("./config");
 module.exports = function(bot) {
     bot.discordBot.on('ready', () => {
         console.log('Logged into Discord as ' + bot.discordBot.user.username);
+        bot.isDiscordReady = true; 
+        if (bot.isDiscordReady && bot.isSteamReady) {
+            bot.checkBinds();
+        }
     });
 
     bot.discordBot.on('message', message => {

@@ -9,9 +9,16 @@ module.exports = function(bot) {
         bot.steamBot.setPersona(SteamUser.EPersonaState.Online);
 
         setTimeout(function() {
-           console.log("Logged into Steam as " + bot.steamBot.accountInfo.name);
+            console.log("Logged into Steam as " + bot.steamBot.accountInfo.name);
+
+            bot.isSteamReady = true;
+
+            if (bot.isDiscordReady && bot.isSteamReady) {
+                bot.checkBinds();
+            }
         }, 1000);
 
+        
     });
 
     bot.steamBot.on('error', function(e) {

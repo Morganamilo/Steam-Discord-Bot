@@ -118,3 +118,30 @@ module.exports.strCompare = function(_a, _b) {
     
     return 0;
 }
+module.exports.format = function (left, right, underlineLeft = false, underlineRight = false, arrow = " <-> ") {
+    let list = "";
+
+    if (!left) {
+        return list;
+    }
+
+    left = module.exports.discordCode(left);
+    if (underlineLeft) {
+        left = module.exports.discordUnderline(left);
+    }
+
+    list += left;
+
+    if (!right) {
+        return list
+    }
+
+    right = module.exports.discordCode(right);
+    if (underlineRight) {
+        right = module.exports.discordUnderline(right);
+    }
+
+    list += " <-> " + right;
+
+    return list;
+}

@@ -20,7 +20,7 @@ module.exports = function(bot) {
 		"    `idchannels`    Lists all channels and their binds as IDs\n" +
 		"    `binds`    Lists all binds\n" +
 		"    `idbinds`    Lists all binds as IDs\n" +
-        "    `vbids`    List all binds verbosely\n" +
+        "    `vbinds`    List all binds verbosely\n" +
         "    `fixbinds` Fixes broken binds\n" +
 		"    `idbinds`    Lists all binds as IDs\n" +
 		"    `unbindall`    Unbinds all channels\n" +

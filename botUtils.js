@@ -101,7 +101,8 @@ module.exports = function(bot) {
         return accounts;
     }
     
-    bot.getBindSteamAccName = function(steamName) {
+    bot.getBindSteamAccName = function (steamName) {
+        
         let id = bot.getSteamID(steamName)
         let accounts = bot.getBindSteamAcc(id);
         
@@ -110,5 +111,49 @@ module.exports = function(bot) {
         }
         
         return accounts;
+    }
+
+    bot.checkBinds = function () {
+        let currentBinds = bind.getBinds();
+        let errors = "";
+
+        console.log("\nChecking binds: ");
+
+        for (channelID in currentBinds) {
+            let steamID = currentBinds[channelID];
+
+            let account = bot.getBindChannelAcc(channelID);
+            let left;
+            let right;
+
+            //let sAccount = bot.getBindSteamAcc(steamID);
+
+            if (!account.channel) {
+                left = "Broken ID";
+            } else {
+                left = account.channel.name;
+            }
+
+            if (!account.steam) {
+                right = "Broken ID";
+            } else {
+                right = account.steam.player_name;
+            }
+
+            
+            if (!account.channel || !account.steam) {
+                //console.log(utils.format(left, right, leftUnderline, rightUnderline))
+                errors += "\t[" + left + "] <-> [" + right + "]" + "\n";
+
+            }
+        }
+        if (errors) {
+            console.log("\tErrors were found: ");
+            console.log(errors);
+        }
+
+        if (!errors) {
+            console.log("\tNo errors found.");
+        }
     }
 }

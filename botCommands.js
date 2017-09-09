@@ -5,6 +5,13 @@ const messageSettings = {
   split: true  
 };
 
+function logCmd(message) {
+    console.log("\nCommand executed: ");
+    console.log("\tUser: " + message.author.username);
+    console.log("\tCommand: " + message.content);
+    console.log("\tServer: " + message.guild.name);
+    console.log("\tTime: " + message.createdAt.toString());
+}
 
 module.exports = function(bot) {
     const commands = {};
@@ -27,33 +34,7 @@ module.exports = function(bot) {
         return false;
     }
     
-    let _format = function(left, right, underlineLeft = false, underlineRight = false, arrow = " <-> ") {
-        let list = "";
-
-        if (!left) {
-            return list;
-        }
-
-        left = utils.discordCode(left);
-        if (underlineLeft) {
-            left = utils.discordUnderline(left);
-        }
-
-        list += left;
-
-        if (!right) {
-            return list
-        }
-
-        right = utils.discordCode(right);
-        if (underlineRight) {
-            right = utils.discordUnderline(right);
-        }
-
-        list += " <-> " + right;
-
-        return list;
-    }
+    
 
     let _friends = function(message, search, showIDs) {
         let reply = [];
@@ -89,7 +70,7 @@ module.exports = function(bot) {
 
 
 
-            let r = _format(left, right, false, underlineRight);
+            let r = utils.format(left, right, false, underlineRight);
 
             if (r) {
                 reply.push(r);
@@ -132,7 +113,7 @@ module.exports = function(bot) {
 
 
 
-            let r = _format(left, right, false, underlineRight);
+            let r = utils.format(left, right, false, underlineRight);
 
             if (r) {
                 reply.push(r);
@@ -181,7 +162,7 @@ module.exports = function(bot) {
 
 
 
-            let r = _format(left, right, underlineLeft, underlineRight);
+            let r = utils.format(left, right, underlineLeft, underlineRight);
 
             if (r) {
                 reply.push(r);
@@ -202,6 +183,7 @@ module.exports = function(bot) {
         tokens[0] = message;
 
         if (commandFunc) {
+            logCmd(message);
             commandFunc.apply(this, tokens);
             return true;
         }

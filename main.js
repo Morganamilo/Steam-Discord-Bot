@@ -7,6 +7,11 @@ const config = require("./config");
 
 const bot = {};
 
+let isDiscordReady = false;
+let isSteamReady = false;
+
+
+
 bot.discordBot = new Discord.Client();
 bot.steamBot = new SteamUser()
 bot.steamBot.setOptions(config.steamOptions)

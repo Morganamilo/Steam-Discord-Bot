@@ -1,4 +1,5 @@
 servers
+.vs
 bindconfig
 steamdata
 node_modules
