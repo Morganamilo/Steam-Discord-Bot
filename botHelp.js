@@ -17,6 +17,7 @@ module.exports = function(bot) {
 		"    `channels`    Lists all chanels and their binds\n" +
 		"    `idchannels`    Lists all channels and their binds as IDs\n" +
 		"    `binds`    Lists all binds\n" +
+        "    `vbids`    List all binds verbosely"
 		"    `idbinds`    Lists all binds as IDs\n" +
 		"    `unbindall`    Unbinds all channels\n" +
         "    `sort`    Sorts binded channels alphabetically\n"
@@ -104,6 +105,16 @@ module.exports = function(bot) {
         "Usage:\n" +
         "    `!binds`\n" +
         "    `!binds <search>`\n"
+    ;
+    
+    help.vbinds =
+        "List All binds or a specific bind very verbosely. Includes all data it can find on a binds and points out errors.\n" +
+        "Usage:\n" +
+        "    `!vbinds`\n" +
+        "    `!binds cid <channel ID>`\n" +
+        "    `!binds cname <channel name>`\n" +
+        "    `!binds sid <steam name>`\n" +
+        "    `!binds sname <steam name>`\n" 
     ;
     
     help.idbinds = 

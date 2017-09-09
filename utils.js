@@ -75,3 +75,15 @@ module.exports.discordCode = function(str) {
     str = "`" + str + "`";
     return str;
 }
+
+module.exports.discordUnderline = function(str) {
+    str = str.replace("_", "\\_")
+    str = "__" + str + "__";
+    return str;
+}
+
+module.exports.discordBold = function(str) {
+    str = str.replace("**", "\\**")
+    str = "**" + str + "**";
+    return str;
+}

@@ -1,5 +1,6 @@
 const utils = require("./utils");
 const bind = require("./bind.js");
+
 const messageSettings = {
   split: true  
 };
@@ -22,6 +23,7 @@ module.exports = function(bot) {
             message.reply("Missing channel name");
             return;
         }
+        
         
         if (!steamName) {
             steamName = channelName;
@@ -128,6 +130,11 @@ module.exports = function(bot) {
     commands["!mkchannel"] = function(message, channelName) {
         if (!channelName) {
             message.reply("Missing channel name");
+            return;
+        }
+        
+        if (channelName.length < 2 || channelName.length > 100) {
+            message.reply("Channel name must be between 2 and 100 characters");
             return;
         }
         
@@ -387,23 +394,6 @@ module.exports = function(bot) {
         message.reply("Reset binds");
     }
     
-    bot.commands = commands;
-    
-    bot.callCommand = function(message) {
-        let tokens = utils.tokenize(message.content);
-        let command = tokens[0];
-        let commandFunc = commands[command];
-
-        tokens[0] = message;
-
-        if (commandFunc) {
-            commandFunc.apply(this, tokens);
-            return true;
-        }
-        
-        return false;
-    }
-    
     commands["!sort"] = function(message) {
         let channelCollection = message.guild.channels;
         let channels = [];
@@ -432,6 +422,136 @@ module.exports = function(bot) {
             
             channel.setPosition(k + noCount);
         }
-        
     }
+    
+    commands["!vbinds"] = function(message, search, name = "") {
+        let binds;
+        let acc;
+        
+        if (search == "cid") {
+            acc = bot.getBindChannelAcc(name)
+        }
+        
+        if (search == "cname") {
+            acc = bot.getBindChannelAccName(bot.discordBot, name)
+        }
+       
+        if (search == "sid") {
+            acc = bot.getBindSteamAcc(name)
+        }
+        
+        if (search == "sname") {
+            acc = bot.getBindSteamAccName(name)
+        }
+        
+        if (acc) {
+            binds = {};
+            binds[acc.channelID] = acc.steamID;
+        } else {
+            binds = bind.getBinds();
+        }
+        
+        
+        let reply = ""
+        
+        let t1 = "        ";
+        let t2 = t1 + t1;
+        let t3 = t2 + t1
+        
+        for (channelID in binds) {
+            let steamID = binds[channelID];
+            
+            let cAccount = bot.getBindChannelAcc(channelID);
+            let sAccount = bot.getBindSteamAcc(steamID)
+            
+            reply += utils.discordBold("Bind " + utils.discordCode(channelID) + " <-> " + utils.discordCode(steamID) + " ->") + "\n";
+            
+            reply += t1 + utils.discordBold("Discord Channel ->") + "\n";
+            
+            if (cAccount.channelID) {
+                reply += t2 + "ID " + utils.discordCode(cAccount.channelID) + "\n";
+                
+                if (cAccount.channel) {
+                    reply += t2 + "Exists on Discord as " + utils.discordCode(cAccount.channel.name) + "\n";
+                    reply += t2 + "In server " + utils.discordCode(cAccount.channel.guild.name) + "\n";
+                } else {
+                    reply += t2 + utils.discordUnderline("Does not exist on Discord") + "\n";
+                }
+                
+                reply += t2 + utils.discordBold("Bound to Steam user ->") + "\n";
+                
+                if (cAccount.steamID) {
+                    reply += t3 + "ID " + utils.discordCode(cAccount.steamID) + "\n"; 
+                } else {
+                    reply += t3 + utils.discordUnderline("Could not find Steam ID") + "\n"; //this should be impossible
+                }
+                
+                if (cAccount.steam) {
+                    reply += t3 + "Exists on Steam as" + utils.discordCode(cAccount.steam.player_name) + "\n";
+                } else {
+                    reply += t3 + utils.discordUnderline("Does not exit on Steam") + "\n";
+                }
+                
+            } else {
+                reply += t2 + utils.discordUnderline("Could not find ID") + "\n"; //this should be impossible
+            }
+            
+            reply += "\n";            
+            
+            reply += t1 + utils.discordBold("Steam user ->") + "\n";
+            
+            if (sAccount.steamID) {
+                reply += t2 + "ID " + utils.discordCode(sAccount.steamID) + "\n";
+                
+                if (sAccount.steam) {
+                    reply += t2 + "Exists on Steam as " + utils.discordCode(sAccount.steam.player_name) + "\n";
+                } else {
+                    reply += t2 + utils.discordUnderline("Does not exist on Steam") + "\n";
+                }
+                
+                reply += t2 + utils.discordBold("Bound to Discord channel ->") + "\n";
+                
+                if (sAccount.channelID) {
+                    reply += t3 + "ID " + utils.discordCode(sAccount.channelID) + "\n"; 
+                } else {
+                    reply += t3 + utils.discordUnderline("Could not find ID") + "\n"; //this should be impossible
+                }
+                
+                if (sAccount.channel) {
+                    reply += t3 + "Exists on Discord as" + utils.discordCode(sAccount.channel.name) + "\n";
+                    reply += t3 + "In server " + utils.discordCode(sAccount.channel.guild.name) + "\n";
+                } else {
+                    reply += t3 + utils.discordUnderline("does not exit on Discord") + "\n";
+                }
+                
+            } else {
+                reply += t2 + utils.discordUnderline("Could not find ID") + "\n"; //this should be impossible
+            }            
+        
+            reply += "\n";            
+            reply += "\n"; 
+            
+        
+        }
+        
+        message.reply(reply, messageSettings);
+    }
+        
+    bot.commands = commands;
+        
+    bot.callCommand = function(message) {
+        let tokens = utils.tokenize(message.content);
+        let command = tokens[0];
+        let commandFunc = commands[command];
+
+        tokens[0] = message;
+
+        if (commandFunc) {
+            commandFunc.apply(this, tokens);
+            return true;
+        }
+        
+        return false;
+    }
+    
 }

@@ -1,4 +1,5 @@
 const utils = require("./utils.js");
+const bind = require("./bind.js")
 
 module.exports = function(bot) {
     bot.getSteamName = function(steamID) {
@@ -44,5 +45,70 @@ module.exports = function(bot) {
     
     bot.isFriend = function(steamID) {
         return !!bot.steamBot.myFriends[steamID];
+    }
+    
+    bot.getAccounts = function(channelID, steamID) {
+        let accounts = {}; //make empty object
+        let steam = bot.steamBot.users[steamID]; //get steam acount object (contains all data about a user)
+        
+        if (channelID) { //if channelID was input as an argument
+            accounts.channel = bot.discordBot.channels.get(channelID); //set accounts.channel to the channel object
+            accounts.channelID = channelID
+        }
+        
+        if (steamID) { //if steamId was input as an argument
+            accounts.steam = steam; ////set accounts.steam to the channel object
+            accounts.steamID = steamID; //the steam object doesnt actually contain the steamID so we add it ourselfs
+        }
+    
+        
+        return accounts //return the object
+    }
+    
+    bot.getBindSteamAcc = function(steamID) {
+        let channelID = bind.getBindSteam(steamID);
+        
+        let accounts = bot.getAccounts(channelID, steamID);
+        
+        if (!channelID) {
+            accounts.missingBind = true;
+        }
+        
+        return accounts;
+    }
+    
+    bot.getBindChannelAcc = function(channelID) {
+        let steamID = bind.getBindChannel(channelID);
+        
+        let accounts = bot.getAccounts(channelID, steamID);
+        
+        if (!steamID) {
+            accounts.missingBind = true;
+        }
+        
+        return accounts;
+    }
+    
+    bot.getBindChannelAccName = function(server, channelName) {
+        let id = bot.getChannelID(server, channelName)
+        
+        let accounts = bot.getBindChannelAcc(id);
+        
+        if (channelName)  {
+            accounts.channelName = channelName;
+        }
+        
+        return accounts;
+    }
+    
+    bot.getBindSteamAccName = function(steamName) {
+        let id = bot.getSteamID(steamName)
+        let accounts = bot.getBindSteamAcc(id);
+        
+        if (steamName) {
+            accounts.steamName = steamName;
+        }
+        
+        return accounts;
     }
 }

@@ -23,7 +23,7 @@ function loadFile() {
 }
 
 function saveFile() {
-    let jsonBinds = JSON.stringify(binds);
+    let jsonBinds = JSON.stringify(binds, null, '\t');
 
     fs.writeFileSync(bindConfigPath, jsonBinds);
 }

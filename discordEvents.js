@@ -13,9 +13,10 @@ module.exports = function(bot) {
 
         if (message.author.id !== bot.discordBot.user.id) {
             let channelID = message.channel.id;
-            let steamID = bind.getBindChannel(channelID);
+            let accounts = bot.getBindChannelAcc(message.channel.id)
+            let steamID = accounts.steamID
 
-            if (steamID) {
+            if (accounts.steam) {        
                 if (message.content) {
                     bot.steamBot.chatMessage(steamID, message.content);
                 }
@@ -33,9 +34,10 @@ module.exports = function(bot) {
         if (user.id === bot.discordBot.user.id) return;
         if (!config.sendTyping) return;    
         
-        let steamID = bind.getBindChannel(channel.id);
+        let account = bot.getBindChannelAcc(channel.id);
+        let steamID = account.steamID;
         
-        if (steamID) {
+        if (account.steam) {
             bot.steamBot.chatTyping(steamID);
         }
         
@@ -50,9 +52,10 @@ module.exports = function(bot) {
         let channel = newMessage.channel;
         
         if (channel.lastMessageID === newMessage.id) {
-            let steamID = bind.getBindChannel(channel.id);
+            let account = bot.getBindChannelAcc(channel.id);
+            let steamID = account.steamID;
 
-            if (steamID) {
+            if (account.steam) {
                 if (newMessage.content) {
                     bot.steamBot.chatMessage(steamID, newMessage.content + "*");
                 }

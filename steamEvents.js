@@ -33,21 +33,22 @@ module.exports = function(bot) {
     });
 
     bot.steamBot.on('friendMessage', function(senderID, message) {
-        let steamID = senderID.getSteamID64()
-        let channelID = bind.getBindSteam(steamID);
+        let steamID = senderID.getSteamID64();
+        let account = bot.getBindSteamAcc(steamID);
+        
+        let channelID = account.channelID;
 
-        if (channelID) {
-            let channel = bot.discordBot.channels.get(channelID)
-            
-            if (channel) {
-                channel.send(message);
-            }
-            
+        if (account.channel) {
+            channel.send(message);
         } else {
             let server = bot.discordBot.guilds.array()[0]; //just get the first server
-            let username = bot.getSteamName(steamID);
+            let username = utils.toChannelName(bot.getSteamName(steamID).substr(1, 100));
 
-            server.createChannel(utils.toChannelName(username), "text").then(channel => {
+            if (username.length < 2) {
+                username += "_";
+            }
+            
+            server.createChannel(username, "text").then(channel => {
                 bind.bind(channel.id, steamID);
                 channel.send(message);
             });
@@ -56,31 +57,25 @@ module.exports = function(bot) {
     
     bot.steamBot.on('friendTyping', function(senderID) {
         if (!config.receiveTyping) return;
-        let channelID = bind.getBindSteam(senderID.getSteamID64());
-        
-        if (channelID) {
-            let channel = bot.discordBot.channels.get(channelID);
+        let account = bot.getBindSteamAcc(senderID.getSteamID64());
+        let channelID = account.channelID;
             
-            if (channel) {
-                channel.startTyping();
-                
-                setTimeout(function() {
-                    channel.stopTyping(true);
-                }, 5000);
-            }
+        if (account.channel) {
+            account.channel.startTyping();
+
+            setTimeout(function() {
+                account.channel.stopTyping(true);
+            }, 5000);
         }
     });
     
     bot.steamBot.on('friendMessageEcho', function(senderID, message) {
-        let channelID = bind.getBindSteam(senderID.getSteamID64());
-        
-        if (channelID) {
-            let channel = bot.discordBot.channels.get(channelID);
+        let account = bot.getBindSteamAcc(senderID.getSteamID64());
+        let channelID = account.channelID;
             
-            if (channel) {
-                let stamName = bot.steamBot.users[bot.steamBot.steamID.getSteamID64()].player_name;
-                channel.send(utils.discordCode(stamName) + " -> " + message);
-            }
+        if (account.channel) {
+            let steamName =  account.steam.player_name;
+            account.channel.send(utils.discordCode(stamName) + " -> " + message);
         }
     });
 }
