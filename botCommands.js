@@ -712,32 +712,38 @@ module.exports = function(bot) {
     }
     
     commands["!sort"] = function(message) {
-        let channelCollection = message.guild.channels;
+        let server = message.guild;    
+        let channelCollection = server.channels;
         let channels = [];
+        let channelPositions = [];
         let noCount = 0;
         
            
         channelCollection.forEach(channel => {
             if (channel.constructor.name === "TextChannel") {
                 if (bind.getBindChannel(channel.id)) {
-                    channels.push(channel);    
+                    channels.push(channel);
                 } else {
                     noCount++;
                 }
             }
         });
-        
-        channels.sort(utils.strCompare);
-        let k = channels.length;
-       
-        function next() {
-            k--;
             
-            if (k < 0) return;
-            
-            channels[k].setPosition(k + noCount).then(next)
+        let sort = function(a, b) {
+            return utils.strCompare(a.name, b.name);
         }
         
-        next()
+        channels.sort(sort);
+    
+        for (index in channels) {
+            channelPositions.push({
+                channel: channels[index].id,
+                position: index + noCount
+            });
+        }
+        
+        server.setChannelPositions(channelPositions).then(_ => {
+            message.reply("Sorted channels")
+        });
     }
 }
