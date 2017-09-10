@@ -145,3 +145,7 @@ module.exports.format = function (left, right, underlineLeft = false, underlineR
 
     return list;
 }
+
+exports.simpleFormat = function(left, right, arrow = "<->") {
+    return "[" + left + "] " + arrow + " [" + right;
+}

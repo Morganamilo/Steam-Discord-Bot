@@ -1,5 +1,6 @@
 const bind = require("./bind.js");
 const config = require("./config");
+const utils = require("./utils")
 
 module.exports = function(bot) {
     bot.discordBot.on('ready', () => {
@@ -28,6 +29,16 @@ module.exports = function(bot) {
                 message.attachments.forEach( attachment => {
                     bot.steamBot.chatMessage(steamID, attachment.url);
                 });
+            } else if (accounts.steamID) {
+                console.log("Sent discord message but bind is broken:");
+                console.log("\tBind: " + utils.simpleFormat(message.channel.name, "Broken ID"));
+                console.log("\tBind ID: " + utils.simpleFormat(message.channel.id, accounts.steamID));
+                console.log("\tUser: " + message.author.username);
+                console.log("\tServer: " + message.guild.name);
+                console.log("\tTime: " + message.createdAt.toString());
+                
+                let reply = "`bot` -> Broken bind " + utils.format(message.channel.name, "BrokenID", false, true);
+                message.reply(reply);
             }
         }
 
@@ -52,7 +63,7 @@ module.exports = function(bot) {
     });
     
     bot.discordBot.on("messageUpdate", (oldMessage, newMessage) => {
-        if (oldmessage.author.id === bot.discordBot.user.id) return;
+        if (oldMessage.author.id === bot.discordBot.user.id) return;
         let channel = newMessage.channel;
         
         if (channel.lastMessageID === newMessage.id) {

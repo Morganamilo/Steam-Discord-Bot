@@ -5,7 +5,7 @@ const config = require("./config");
 const SteamUser = require('steam-user');
 
 module.exports = function(bot) {
-    bot.steamBot.on('loggedOn', function(details) {
+    bot.steamBot.on('loggedOn', details => {
         bot.steamBot.setPersona(SteamUser.EPersonaState.Online);
 
         setTimeout(function() {
@@ -21,12 +21,12 @@ module.exports = function(bot) {
         
     });
 
-    bot.steamBot.on('error', function(e) {
+    bot.steamBot.on('error', e => {
         // Some error occurred during logon
         console.log(e);
     });
 
-    bot.steamBot.on('accountInfo', function(name, country, authedMachines, flags, facebookID, facebookName) {
+    bot.steamBot.on('accountInfo', (name, country, authedMachines, flags, facebookID, facebookName) => {
         let accountInfo = {
             "name":name,
             "country":country,
@@ -39,30 +39,71 @@ module.exports = function(bot) {
         bot.steamBot.accountInfo = accountInfo;
     });
 
-    bot.steamBot.on('friendMessage', function(senderID, message) {
+    bot.steamBot.on('friendMessage', (senderID, message) => {
         let steamID = senderID.getSteamID64();
         let account = bot.getBindSteamAcc(steamID);
         
         let channelID = account.channelID;
-
+        let server = bot.discordBot.guilds.array()[0]; 
+        
         if (account.channel) {
             account.channel.send(message);
-        } else {
-            let server = bot.discordBot.guilds.array()[0]; //just get the first server
-            let username = utils.toChannelName(bot.getSteamName(steamID).substr(1, 100));
+        } else if (account.channelID) {
+            let channel;
+            let date = new Date();
+            
+            console.log("Recived message from steam but bind is broken:");
+            console.log("\tBind: " + utils.simpleFormat("Broken ID", account.steam.playerName));
+            console.log("\tBind ID: " + utils.simpleFormat(account.discordID, account.steamID));
+            console.log("\tTime: " + date);
+                        
+            server.channels.every(_channel => {
+                if (_channel.name === "bot") {
+                    channel = _channel;
+                    return false;
+                }
+                
+                return true;
+            });
+            
+            if (channel) {
+                let name = account.steam.player_name;
+                channel.guild.createChannel(name, "text").then(newChannel => {
+                    let str = "`bot` -> Recived message on steam from " + name + " but bind is broken " + utils.format("Broken ID", name, true, false) +  "\n" +
+                    "Binding to new channel " + utils.format(newChannel.name, account.steam.player_name) + "\n."; 
 
+                    console.log("Created replacment channel: " + newChannel.name);
+                    console.log("Binding to this instead:");
+                    
+                    bind.unbindSteam(account.steamID);
+                    bind.bind(newChannel.id, account.steamID);
+                    
+                    newChannel.send(str);
+                    newChannel.send(message);
+                });
+            }
+        } else {
+            //just get the first server
+            let username = utils.toChannelName(bot.getSteamName(steamID).substr(0, 100));
+            
             if (username.length < 2) {
                 username += "_";
             }
             
-            server.createChannel(username, "text").then(channel => {
-                bind.bind(channel.id, steamID);
-                channel.send(message);
-            });
+            let cAccount = bot.getBindChannelAccName(server, username);
+            if (cAccount.channelID && !cAccount.steamID) {
+                bind.bind(cAccount.channelID, steamID);
+                cAccount.channel.send(message);
+            } else {
+                server.createChannel(username, "text").then(channel => {
+                    bind.bind(channel.id, steamID);
+                    channel.send(message);
+                });
+            }
         }
     });
     
-    bot.steamBot.on('friendTyping', function(senderID) {
+    bot.steamBot.on('friendTyping', senderID => {
         if (!config.receiveTyping) return;
         let account = bot.getBindSteamAcc(senderID.getSteamID64());
         let channelID = account.channelID;
@@ -76,13 +117,19 @@ module.exports = function(bot) {
         }
     });
     
-    bot.steamBot.on('friendMessageEcho', function(senderID, message) {
+    bot.steamBot.on('friendMessageEcho', (senderID, message) => {
         let account = bot.getBindSteamAcc(senderID.getSteamID64());
         let channelID = account.channelID;
             
         if (account.channel) {
             let steamName =  account.steam.player_name;
-            account.channel.send(utils.discordCode(stamName) + " -> " + message);
+            account.channel.send(utils.discordCode(bot.steamBot.accountInfo.name) + " -> " + message + "\n.");
+        }
+    });
+    
+    bot.steamBot.on('friendRelationship', (steamID, relationship) => {
+        if (relationship !== SteamUser.EFriendRelationship.Friend) {
+            bind.unbindSteam(steamID.getSteamID64());
         }
     });
 }

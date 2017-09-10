@@ -1,30 +1,37 @@
 const utils = require("./utils.js");
-const bind = require("./bind.js")
+const bind = require("./bind.js");
+const steamUser = require("steam-user");
 
 module.exports = function(bot) {
     bot.getSteamName = function(steamID) {
-        if (bot.steamBot.users[steamID])
-            return bot.steamBot.users[steamID].player_name;
+        let user = bot.steamBot.users[steamID];
+        
+        if (bot.isFriend(steamID)) {
+            return user.player_name;
+        }
     }
 
     bot.getSteamID = function(name) {
-        for (user in bot.steamBot.users) {
-            if (bot.steamBot.users[user].player_name === name) {
-                return user;
-            }
+        for (userID in bot.steamBot.users) {    
+            if (!bot.isFriend(userID)) continue;
+            
+            let user = bot.steamBot.users[userID];
+            if (user.player_name === name) return userID;
         }
     }
 
     bot.getChannelID = function(server, name) {
         let channelID;
 
-        server.channels.forEach(channel => {
+        server.channels.every(channel => {
             if (channel.constructor.name === "TextChannel") {
                 if (channel.name === name) {
                     channelID = channel.id;
-                    return;
+                    return false;
                 }
             }
+            
+            return true;
         });
 
         return channelID;
@@ -33,18 +40,24 @@ module.exports = function(bot) {
     bot.getChannelName = function(server, channelID) {
         let channelName;
 
-        server.channels.forEach( channel => {
+        server.channels.every( channel => {
             if (channel.id === channelID && channel.constructor.name === "TextChannel") {
                 channelName = channel.name;
-                return;
+                return false;
             }
+            
+            return true;
         });
 
         return channelName;
     }
     
-    bot.isFriend = function(steamID) {
-        return !!bot.steamBot.myFriends[steamID];
+     bot.isFriend = function(steamID) {
+        let user = bot.steamBot.users[steamID];
+
+        if (user) {
+            return bot.steamBot.myFriends[steamID] === steamUser.EFriendRelationship.Friend;
+        }
     }
     
     bot.getAccounts = function(channelID, steamID) {
@@ -58,7 +71,10 @@ module.exports = function(bot) {
         }
         
         if (steamID) { //if steamId was input as an argument
-            accounts.steam = steam; ////set accounts.steam to the channel object
+            if (bot.isFriend(steamID)) {
+                accounts.steam = steam; ////set accounts.steam to the channel object
+            }
+            
             accounts.steamID = steamID; //the steam object doesnt actually contain the steamID so we add it ourselfs
             accounts.steamBoundTo = bind.getBindSteam(steamID);
         }

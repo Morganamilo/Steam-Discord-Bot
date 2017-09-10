@@ -7,8 +7,8 @@ const messageSettings = {
 
 function logCmd(message) {
     console.log("\nCommand executed: ");
-    console.log("\tUser: " + message.author.username);
     console.log("\tCommand: " + message.content);
+    console.log("\tUser: " + message.author.username);
     console.log("\tServer: " + message.guild.name);
     console.log("\tTime: " + message.createdAt.toString());
 }
@@ -18,12 +18,12 @@ module.exports = function(bot) {
 
     let _search = function(terms, search) {
         if (!search) return true;
-        
+            
         search = search.toLowerCase();
         
         for (key in terms) {
             let term = terms[key];
-            
+            console.log(term)
             if (term) {
                 if (term.toLowerCase().includes(search)) {
                     return true;
@@ -279,7 +279,7 @@ module.exports = function(bot) {
             let server = message.guild;
 
             server.createChannel(channelName, "text").then(channel => {
-                bind.bind(channel.id, steamID);
+                bind.bind(channel.id, sAccount.steamID);
                 message.reply(
                     "Created channel " + utils.discordCode(channelName) + "\n" +
                     "Bound " + utils.format(channel.name, sAccount.steam.player_name)
@@ -293,11 +293,12 @@ module.exports = function(bot) {
     }
     
     commands["!autobind"] = function(message) {
-        let friends = bot.steamBot.users;
+        let users = bot.steamBot.users;
         let channels = message.guild.channels;
         let reply = "";
         
-        for (steamID in friends) {
+        for (steamID in users) {
+            if (!bot.isFriend(steamID)) continue;
             let steamName = bot.steamBot.users[steamID].player_name
             let channelName = utils.toChannelName(steamName);
             
@@ -428,7 +429,7 @@ module.exports = function(bot) {
         
         let account = bot.getBindChannelAccName(message.guild, channelName);
         
-        if (account.channel) {
+        if (!account.channel) {
             message.reply("Can't find channel " + utils.discordCode(channelName));
             return;
         }

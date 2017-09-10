@@ -40,18 +40,24 @@ module.exports.bind = function(channelID, steamID) {
     binds[channelID] = steamID;
     saveFile();
     
+    console.log("Bound:");
+    console.log("\t[" + channelID +"] <-> [" + steamID + "]\n")
     return module.exports.SUCCESS;
 }
 
 module.exports.unbindChannel = function(channelID) {
-    if (!binds[channelID]) {
+    let steamID = binds[channelID]
+    if (!steamID) {
         return;
     }
     
     delete binds[channelID];
     saveFile()
     
-    return channelID;
+    console.log("Unbound using channelID:");
+    console.log("\t[" + channelID +"] <-> [" + steamID + "]\n")
+    
+    return steamID;
 }
 
 module.exports.unbindSteam = function(steamID) {
@@ -65,7 +71,10 @@ module.exports.unbindSteam = function(steamID) {
     delete binds[key];
     saveFile()
     
-    return value
+    console.log("Unbound using steamID:");
+    console.log("\t[" + key +"] <-> [" + steamID + "]\n")
+    
+    return key
 }
 
 module.exports.getBindChannel = function(channelID) {
@@ -81,6 +90,7 @@ module.exports.getBinds = function() {
 }
 
 module.exports.unbindAll = function() {
+    console.log("All binds deleted")
     binds = {};
     saveFile()
 }
