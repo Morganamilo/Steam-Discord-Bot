@@ -6,11 +6,14 @@ module.exports = function(bot) {
 		"    `help`    Shows this help message\n" +
         "    `bind`    Binds a discord channel to a steam user\n" +
         "    `autobind` Automaticly bind steam friends\n" +
+        "    `autorename`    Automaticly renames channels to match their bind\n" +
         "    `ubind`    Unbinds a chennel useing the channel or username\n"+
         "    `cubind`    Unbinds a channel using the channel name\n" +
         "    `subind`    Unbinds a channel using the steam username\n" +
 		"    `mkchannel`    Creates a discord channel\n" +
 		"    `rmchannel`    Deletes channel, unbinds it if bound\n" +
+        "    `servername`    Gets the name of the server\n" + 
+        "    `serverid`    Gets the ID of the server\n" + 
 		"    `sname`    Gets the steam name associated with a steam ID\n" +
 		"    `sid`    Gets the steam ID associated with a steam name\n" +
 		"    `cname`     Gets the channel name associated with a channel ID\n" +
@@ -41,6 +44,14 @@ module.exports = function(bot) {
         "    `!autobind\n"
     ;
     
+    help.autorename =
+        "Automaticly renames channel to match the steam name of the user they are bound to. Optionaly a search tem can be included to rename just one channel. this search will look for an exact match not just if the channel includes the search\n" +
+        "Usage:\n" +
+        "    `!autorename\n"
+        "    `!autorename <channel name>\n"
+    ;
+    
+    
     help.ubind =
         "Unbinds a channel using the channel name or the steam name. If the entered name matches a channel and a steam user the channel will take priority. This does not delete the channel.\n" +
         "Usage:\n" +
@@ -61,17 +72,29 @@ module.exports = function(bot) {
     ;
     
     help.mkchannel =
-        "Creates a discord channel in the server the command originated from\n" +
+        "Creates a discord channel in the server the command was sent from\n" +
         "Usage:\n" +
         "    `!mkchannel <channel name>`\n"
     ;
     
      help.rmchannel =
-        "deletes a discord channel in the server the command originated from. If the channel is bound it will be unbound before deletion\n" +
+        "deletes a discord channel in the server the command was sent from. If the channel is bound it will be unbound before deletion\n" +
         "Usage:\n" +
         "    `!rmchannel <channel name>`\n"
     ;
     
+    help.servername =
+        "Gets the name of the server that the command was sent from\n" +
+        "Usage:\n" +
+        "    `!servername`\n"
+    ;
+    
+    help.serverid =
+        "Gets the id of the server that the command was sent from\n" +
+        "Usage:\n" +
+        "    `!servername`\n"
+    ;
+        
      help.sname =
         "Gets the steam name associated with a steam ID\n" +
         "Usage:\n" +
@@ -85,13 +108,13 @@ module.exports = function(bot) {
     ;
     
     help.cname =
-        "Gets the channel name associated with a channel ID. Will only search for channels belonging to the server the command originated from\n" +
+        "Gets the channel name associated with a channel ID. Will only search for channels belonging to the server the command was sent from\n" +
         "Usage:\n" +
         "    `!cname <channel ID>`\n"
     ;
     
     help.cid =
-        "Gets the channel ID associated with a channel name. Will only search for channels belonging to the server the command originated from\n" +
+        "Gets the channel ID associated with a channel name. Will only search for channels belonging to the server the command was sent from\n" +
         "Usage:\n" +
         "    `!cid <channel name>`\n"
     ;
@@ -111,14 +134,14 @@ module.exports = function(bot) {
     ;
     
     help.channels =
-        "Lists all channels belonging to the server the message originated from, if bound also list the steam user it is bound to. Optionaly a seach term can be used where the list will only contain entries where the steam name or channel name contains the search term.\n" +
+        "Lists all channels belonging to the server the message was sent from, if bound also list the steam user it is bound to. Optionaly a seach term can be used where the list will only contain entries where the steam name or channel name contains the search term.\n" +
         "Usage:\n" +
         "    `!channels`\n" +
         "    `!channels <search>`\n"
     ;
     
     help.idchannels =
-        "Lists all channels IDs belonging to the server the message originated from, if bound also list the steam user IDs it is bound to. Optionaly a seach term can be used where the list will only contain where the search term is included in the channel name or Steam name or channel ID or steam ID.\n" +
+        "Lists all channels IDs belonging to the server the message was sent from, if bound also list the steam user IDs it is bound to. Optionaly a seach term can be used where the list will only contain where the search term is included in the channel name or Steam name or channel ID or steam ID.\n" +
         "Usage:\n" +
         "    `!idchannels`\n" +
         "    `!idchannels <search>`\n"

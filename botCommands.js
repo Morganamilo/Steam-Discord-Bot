@@ -464,10 +464,18 @@ module.exports = function(bot) {
             message.reply(reply);
         });
     }
+    
+    commands["!servername"] = function(message) {
+        message.reply(message.guild.name);
+    }
+    
+    commands["!serverid"] = function(message, serverName) {
+         message.reply(message.guild.id);
+    }
 
     commands["!sname"] = function(message, steamID) {
         if (!steamID) {
-            message.reply("Missing steam ID");
+            message.reply("Missing Steam ID");
             return;
         }
         
@@ -476,13 +484,13 @@ module.exports = function(bot) {
         if (name) {
             message.reply(utils.discordCode(name));
         } else {
-            message.reply("Cant find steam user with ID " + utils.discordCode(steamID));
+            message.reply("Can't find Steam user with ID " + utils.discordCode(steamID));
         }
     }
 
     commands["!sid"] = function(message, steamName) {
         if (!steamName) {
-            message.reply("Missing steam name");
+            message.reply("Missing Steam name");
             return;
         }
         
@@ -491,7 +499,7 @@ module.exports = function(bot) {
         if (id) {
             message.reply(utils.discordCode(id));
         } else {
-            message.reply("Cant find steam user " + utils.discordCode(steamName));
+            message.reply("Cant find Steam user " + utils.discordCode(steamName));
         }
     }
 
@@ -746,4 +754,66 @@ module.exports = function(bot) {
             message.reply("Sorted channels")
         });
     }
+    
+    commands["!autorename"] = function(message, channelName) {
+        let channels;
+        let account = bot.getBindChannelAccName(message.guild, channelName);
+        let reply = "";
+        
+        if (channelName) {
+            if (account.channel) {
+                if (account.steamID) {
+                    channels = [message.guild.channels.get(account.channelID)];
+                } else {
+                    message.reply("Cant rename" + utils.discordCode(toChannelName) + "because it is not bound")
+                    return;
+                }
+            } else {
+                message.reply("Channel does not exist " + utils.discordCode(channelName))
+                return;
+            }
+        } else {
+            channels = message.guild.channels.array();
+        }
+        
+        for (n in channels) {
+            let channel = channels[n];
+            let acc = bot.getBindChannelAcc(channel.id);
+            
+            if (acc.steamID) {
+                if (acc.steam) {
+                    let sName = utils.toChannelName(acc.steam.player_name);
+                    let cName = acc.channel.name;
+                    
+                    if (cName !== sName) {
+                        acc.channel.setName(sName);
+                        reply += "Renamed " + utils.format(cName, sName, false, false, "->") + "\n";
+                    }
+                } else {
+                    reply += "Can't rename broken bind " + utils.format(acc.channel.name, "Broken ID", false, true); 
+                }
+            } 
+        }
+        
+        if (!reply) {
+            reply = "Nothing to rename";
+        }
+        
+        message.reply(reply);
+    }
 }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    

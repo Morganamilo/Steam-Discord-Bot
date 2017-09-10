@@ -141,7 +141,7 @@ module.exports.format = function (left, right, underlineLeft = false, underlineR
         right = module.exports.discordUnderline(right);
     }
 
-    list += " <-> " + right;
+    list += " " + arrow + " " + right;
 
     return list;
 }
