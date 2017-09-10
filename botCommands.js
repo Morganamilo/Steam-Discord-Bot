@@ -135,7 +135,7 @@ module.exports = function(bot) {
             let channelName = account.channel && account.channel.name;
             let steamName = account.steam && account.steam.player_name;
 
-            if (!_search([channelID, steamID, channelName, steamName], search)) return;
+            if (!_search([channelID, steamID, channelName, steamName], search)) continue;
 
             let left;
             let right;
@@ -207,67 +207,126 @@ module.exports = function(bot) {
             return;
         }
         
-        
         if (!steamName) {
             steamName = channelName;
         }
         
         channelName = utils.toChannelName(channelName);
         
-        let channelID = bot.getChannelID(message.guild, channelName);
-        let steamID = bot.getSteamID(steamName);
-
-        let steamBind = bind.getBindSteam(steamID);
-        let channelBind = bind.getBindChannel(channelID);
-
-        let cName = utils.discordCode(channelName);
-        let sName = utils.discordCode(steamName);
-        
-    
         if (channelName === "bot") {
             message.reply("`bot` is reserved for commands and can not be bound");
             return;
         }
-
-        if (!steamID) {
-            let sName = utils.discordCode(steamName);
+        
+        let cAccount = bot.getBindChannelAccName(message.guild, channelName);
+        let sAccount = bot.getBindSteamAccName(steamName);
+        
+        //guarantee sAccount.steam
+        if (!sAccount.steamID) {
+            let sName = utils.discordUnderline(utils.discordCode(steamName));
             message.reply("Can't find Steam user " + sName);
             return;
         }
 
+        
+        
         //if steam user is bound
-        if (steamBind) {
-            let cNameB = utils.discordCode(bot.getChannelName(message.guild, steamBind));
-            let sNameB = utils.discordCode(bot.getSteamName(bind.getBindChannel(steamBind)), true);
-            message.reply("Steam user " + sNameB + " is already bound to channel " + cNameB);
+        if (sAccount.channelID) {
+            let left;
+            let right = sAccount.steam.player_name;
+
+            if (sAccount.channel) {
+                left = sAccount.channel.name;
+                underlineLeft = false
+            } else {
+                left= "Broken ID";
+                underlineLeft = true
+            }
+            
+            message.reply("Steam already bound " + utils.format(left, right, underlineLeft, false));
             return;
         }
 
         //if channel is bound
-        if (channelBind) {
-            let sNameB = utils.discordCode(bot.getSteamName(channelBind), true);
-            let cNameB = utils.discordCode(bot.getChannelName(message.guild, bind.getBindSteam(channelBind)), true);
-            message.reply("Channel " + cNameB + " is already bound to Steam user " + sNameB);
+         if (cAccount.steamID) {
+            let left;
+            let right;
+            let underlineLeft;
+            let underlineRight;
+            
+            if (cAccount.channel) {
+                left = cAccount.channel.name;
+                underlineLeft = false
+            } else {
+                left = "Broken ID";
+                underlineLeft = true
+            }
+             
+            if (cAccount.steam) {
+                right = cAccount.steam.player_name;
+                underlineRight = false
+            } else {
+                right = "Broken ID";
+                underlineRight = true
+            }
+            
+            message.reply("Channel already bound " + utils.format(left, right, underlineLeft, underlineRight));
             return;
         }
 
 
-        if (!channelID) {
+        if (!cAccount.channel) {
             let server = message.guild;
 
             server.createChannel(channelName, "text").then(channel => {
                 bind.bind(channel.id, steamID);
                 message.reply(
-                    "Created channel " + utils.discordCode(channelName) + "\n Bound" +
-                    cName + " <-> " + sName
+                    "Created channel " + utils.discordCode(channelName) + "\n" +
+                    "Bound " + utils.format(channel.name, sAccount.steam.player_name)
                 );
             }).catch(e => {
                 console.log(e);
-                message.reply(e);
             }); } else {
-                bind.bind(channelID, steamID);
-                message.reply(cName + " <-> " + sName);
+                bind.bind(cAccount.channelID, sAccount.steamID);
+                message.reply("Bound " + utils.format(cAccount.channel.name, sAccount.steam.player_name));
         }
+    }
+    
+    commands["!autobind"] = function(message) {
+        let friends = bot.steamBot.users;
+        let channels = message.guild.channels;
+        let reply = "";
+        
+        for (steamID in friends) {
+            let steamName = bot.steamBot.users[steamID].player_name
+            let channelName = utils.toChannelName(steamName);
+            
+            channels.every(channel => {
+                if (channel.name === channelName) {
+                    let result = bind.bind(channel.id, steamID);
+                    
+                    if (result === bind.SUCCESS) {
+                        reply += "binded " + utils.format(channel.name, steamName) + "\n";
+                    }
+                    
+                    return false;
+                }
+                
+                return true
+            });
+        }
+        
+        if (!reply) {
+            reply = "No binds changed";
+        }
+        
+        message.reply(reply, messageSettings);
+    }
+    
+    commands["!eval"] = function(message, str) {
+        let res = eval(str);
+        console.log(res);
+        message.reply(toString(res));
     }
 
     commands["!ubind"] = function(message, name) {
@@ -280,7 +339,7 @@ module.exports = function(bot) {
         let sAccount = bot.getBindSteamAccName(name);
         
         if (!cAccount.channelID && !sAccount.steamID) {
-            message.reply(utils.discordCode(channelName) + " is not bound");
+            message.reply(utils.discordCode(name) + " is not bound");
             return;
         }
         
@@ -370,26 +429,39 @@ module.exports = function(bot) {
         let account = bot.getBindChannelAccName(message.guild, channelName);
         
         if (account.channel) {
-            if (bind.unbindChannel(account.channelID)) {
-                let from;
-                
-                if (account.steam) {
-                    from = account.steam.player_name
-                } else {
-                    from = "Broken ID"
-                }
-                
-                reply += "Unbound " + utils.discordCode(channelName) + " <-> " + utils.discordCode(from) + "\n";
+            message.reply("Can't find channel " + utils.discordCode(channelName));
+            return;
+        }
+        
+        if (bind.unbindChannel(account.channelID)) {
+            let left;
+            let right;
+            let underlineLeft;
+            let underlineRight;
+
+            if (account.steam) {
+                left = account.steam.player_name
+                underlineLeft = false;
+            } else {
+                left = "Broken ID"
+                underlineLeft = true;
             }
             
-            account.channel.delete().then(channel => {
-                reply += "Deleted channel " + utils.discordCode(channelName);
-                message.reply(reply);
-            });
-        } else {
-            reply += "Can't find channel " + utils.discordCode(channelName);
-            message.reply(reply);
+            if (account.channel) {
+                right = account.channel.name;
+                underlineRight = false;
+            } else {
+                right = "Broken ID";
+                underlineRight = true;
+            }
+
+            reply += "Unbound " + utils.format(left, right, underlineLeft, underlineright) + "\n";
         }
+
+        account.channel.delete().then(channel => {
+            reply += "Deleted channel " + utils.discordCode(channelName);
+            message.reply(reply);
+        });
     }
 
     commands["!sname"] = function(message, steamID) {
@@ -475,7 +547,7 @@ module.exports = function(bot) {
     }
 
     commands["!idbinds"] = function(message, search) {
-       _binds(message, search, false);
+       _binds(message, search, true);
     }
 
     commands["!vbinds"] = function(message, search, name = "") {

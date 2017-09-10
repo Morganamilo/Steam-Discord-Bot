@@ -5,6 +5,7 @@ module.exports = function(bot) {
         "Help and usage for all commands. Do `!help <command>` for more detail about a specific command.\n" +
 		"    `help`    Shows this help message\n" +
         "    `bind`    Binds a discord channel to a steam user\n" +
+        "    `autobind` Automaticly bind steam friends\n" +
         "    `ubind`    Unbinds a chennel useing the channel or username\n"+
         "    `cubind`    Unbinds a channel using the channel name\n" +
         "    `subind`    Unbinds a channel using the steam username\n" +
@@ -32,6 +33,12 @@ module.exports = function(bot) {
         "Usage:\n" +
         "    `!bind <channel name> <steam name>`\n" +
         "    `!bind <steam name>`\n"
+    ;
+    
+    help.autobind =
+        "Automaticly binds Steam friends to existing unbound channels that match the steam name. It will convert the Steam name to a channel name first so that \"Foo Bar\" will match \"foo_bar\"\n" +
+        "Usage:\n" +
+        "    `!autobind\n"
     ;
     
     help.ubind =

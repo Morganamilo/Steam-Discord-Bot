@@ -54,11 +54,13 @@ module.exports = function(bot) {
         if (channelID) { //if channelID was input as an argument
             accounts.channel = bot.discordBot.channels.get(channelID); //set accounts.channel to the channel object
             accounts.channelID = channelID
+            accounts.channelBoundTo = bind.getBindChannel(channelID);
         }
         
         if (steamID) { //if steamId was input as an argument
             accounts.steam = steam; ////set accounts.steam to the channel object
             accounts.steamID = steamID; //the steam object doesnt actually contain the steamID so we add it ourselfs
+            accounts.steamBoundTo = bind.getBindSteam(steamID);
         }
     
         
@@ -67,24 +69,14 @@ module.exports = function(bot) {
     
     bot.getBindSteamAcc = function(steamID) {
         let channelID = bind.getBindSteam(steamID);
-        
         let accounts = bot.getAccounts(channelID, steamID);
-        
-        if (!channelID) {
-            accounts.missingBind = true;
-        }
         
         return accounts;
     }
     
     bot.getBindChannelAcc = function(channelID) {
         let steamID = bind.getBindChannel(channelID);
-        
         let accounts = bot.getAccounts(channelID, steamID);
-        
-        if (!steamID) {
-            accounts.missingBind = true;
-        }
         
         return accounts;
     }
