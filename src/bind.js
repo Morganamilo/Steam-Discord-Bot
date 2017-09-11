@@ -1,12 +1,13 @@
 const fs = require("fs");
-const utils = require("./utils.js");
+
+const bot = require("./initBots.js");
 const bindConfigPath = require("./config.js").bindConfigPath;
 
-module.exports.SUCCESS = 0;
-module.exports.CHANNEL_ALEADY_BOUND = 1;
-module.exports.STEAM_ALREADY_BOUND = 2;
-module.exports.CHANNEL_NOT_BOUND = 3;
-module.exports.STEAM_NOT_BOUND = 4;
+const discordBot = bot.discordBot;
+const steamBot = bot.steamBot;
+
+const bind = {};
+let binds;
 
 //make sure the file exists
 fs.appendFileSync(bindConfigPath, '');
@@ -14,7 +15,6 @@ if (fs.readFileSync(bindConfigPath).toString() === "") {
     fs.writeFileSync(bindConfigPath, "{}");
 }
 
-let binds;
 loadFile();
 
 function loadFile() {
@@ -28,13 +28,13 @@ function saveFile() {
     fs.writeFileSync(bindConfigPath, jsonBinds);
 }
 
-module.exports.bind = function(channelID, steamID) {
+bind.bind = function(channelID, steamID) {
     if (binds[channelID]) {
-        return module.exports.CHANNEL_ALEADY_BOUND;
+        return;
     }
     
     if (utils.keyOf(binds, steamID)) {
-        return module.exports.STEAM_ALREADY_BOUND;    
+        return;
     }
     
     binds[channelID] = steamID;
@@ -42,10 +42,11 @@ module.exports.bind = function(channelID, steamID) {
     
     utils.log("Bound:");
     utils.log("\t[" + channelID +"] <-> [" + steamID + "]\n")
-    return module.exports.SUCCESS;
+    
+    return true;
 }
 
-module.exports.unbindChannel = function(channelID) {
+bind.unbindChannel = function(channelID) {
     let steamID = binds[channelID]
     if (!steamID) {
         return;
@@ -60,11 +61,11 @@ module.exports.unbindChannel = function(channelID) {
     return steamID;
 }
 
-module.exports.unbindSteam = function(steamID) {
+bind.unbindSteam = function(steamID) {
     let key = utils.keyOf(binds, steamID);
     
     if (!key) {
-        return module.exports.STEAM_NOT_BOUND;
+        return;
     }
     
     let value = binds[key]
@@ -77,20 +78,61 @@ module.exports.unbindSteam = function(steamID) {
     return key
 }
 
-module.exports.getBindChannel = function(channelID) {
+bind.getBindChannel = function(channelID) {
     return binds[channelID];
 }
 
-module.exports.getBindSteam = function(steamID) {
+bind.getBindSteam = function(steamID) {
     return utils.keyOf(binds, steamID);
 }
 
-module.exports.getBinds = function() {
+bind.getBinds = function() {
     return binds;
 }
 
-module.exports.unbindAll = function() {
+bind.unbindAll = function() {
     utils.log("All binds deleted")
     binds = {};
     saveFile()
 }
+
+bind.getBindSteamAcc = function(steamID) {
+    let channelID = bind.getBindSteam(steamID);
+    let accounts = utils.getAccounts(channelID, steamID);
+
+    return accounts;
+}
+
+bind.getBindChannelAcc = function(channelID) {
+    let steamID = bind.getBindChannel(channelID);
+    let accounts = utils.getAccounts(channelID, steamID);
+
+    return accounts;
+}
+
+bind.getBindChannelAccName = function(server, channelName) {
+    let id = utils.getChannelID(server, channelName)
+
+    let accounts = bind.getBindChannelAcc(id);
+
+    if (channelName)  {
+        accounts.channelName = channelName;
+    }
+
+    return accounts;
+}
+
+bind.getBindSteamAccName = function (steamName) {
+
+    let id = utils.getSteamID(steamName)
+    let accounts = bind.getBindSteamAcc(id);
+
+    if (steamName) {
+        accounts.steamName = steamName;
+    }
+
+    return accounts;
+}
+
+module.exports = bind;
+const utils = require("./utils.js");

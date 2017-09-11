@@ -1,35 +1,30 @@
-"use strict";
-const fs = require("fs");
-
 const Discord = require('discord.js');
 const SteamUser = require('steam-user');
 
 const config = require("./config.js");
 
-const bot = {};
+let discordBot = new Discord.Client();
+let steamBot = new SteamUser();
 
-let isDiscordReady = false;
 let isSteamReady = false;
+let isDiscordReady = false
 
-bot.discordBot = new Discord.Client();
-bot.steamBot = new SteamUser()
-bot.steamBot.setOptions(config.steamOptions)
+steamBot.setOptions(config.steamOptions);
+//steamBot.getPersonas(Object.keys(steamBot.myFriends));
 
-bot.steamBot.getPersonas(Object.keys(bot.steamBot.myFriends))
+module.exports.discordBot = discordBot;
+module.exports.steamBot = steamBot;
 
-require("./botUtils.js")(bot);
-require("./commands.js")(bot);
-require("./help.js")(bot);
-require("./discordEvents.js")(bot);
-require("./steamEvents.js")(bot);
+require("./discordEvents.js");
+require("./steamEvents.js");
 
 //dry run or start the bots
 if (process.argv[2] === "dry") {
-    bot.discordBot.destroy();
-    bot.steamBot.logOff();
-    bot.steamBot.disconnect();
+    discordBot.destroy();
+    steamBot.logOff();
+    steamBot.disconnect();
     process.exit();
 } else {
-    bot.steamBot.logOn(config.steamLogon);
-    bot.discordBot.login(config.discordToken);
+    steamBot.logOn(config.steamLogon);
+    discordBot.login(config.discordToken);
 }
