@@ -1,18 +1,15 @@
 "use strict";
-
 const fs = require("fs");
 
 const Discord = require('discord.js');
 const SteamUser = require('steam-user');
 
-const config = require("./config");
+const config = require("./config.js");
 
 const bot = {};
 
 let isDiscordReady = false;
 let isSteamReady = false;
-
-
 
 bot.discordBot = new Discord.Client();
 bot.steamBot = new SteamUser()
@@ -33,6 +30,6 @@ if (process.argv[2] === "dry") {
 	bot.steamBot.disconnect();
     process.exit();
 } else {
-    bot.steamBot.logOn(config.steamConfig);
+    bot.steamBot.logOn(config.steamLogon);
     bot.discordBot.login(config.discordToken);
 }

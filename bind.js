@@ -1,6 +1,6 @@
 const fs = require("fs");
 const utils = require("./utils.js");
-const bindConfigPath = require("./config").bindConfigPath;
+const bindConfigPath = require("./config.js").bindConfigPath;
 
 module.exports.SUCCESS = 0;
 module.exports.CHANNEL_ALEADY_BOUND = 1;

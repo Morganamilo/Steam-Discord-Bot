@@ -1,5 +1,6 @@
 const utils = require("./utils");
 const bind = require("./bind.js");
+const config = require("./config.js");
 
 const messageSettings = {
   split: true  
@@ -210,8 +211,8 @@ module.exports = function(bot) {
         
         channelName = utils.toChannelName(channelName);
         
-        if (channelName === "bot") {
-            message.reply("`bot` is reserved for commands and can not be bound");
+        if (channelName === config.botChannel) {
+            message.reply(utils.discordCode(config.botChannel) + " is reserved for commands and can not be bound");
             return;
         }
         
@@ -274,6 +275,7 @@ module.exports = function(bot) {
 
         if (!cAccount.channel) {
             let server = message.guild;
+            if (channelName === config.botChannel) channelName += "_"
 
             server.createChannel(channelName, "text").then(channel => {
                 bind.bind(channel.id, sAccount.steamID);
@@ -300,6 +302,8 @@ module.exports = function(bot) {
             let channelName = utils.toChannelName(steamName);
             
             channels.every(channel => {
+                if (channel.name === config.botChannel) return true;
+
                 if (channel.name === channelName) {
                     let result = bind.bind(channel.id, steamID);
                     
@@ -407,6 +411,8 @@ module.exports = function(bot) {
         
         channelName = utils.toChannelName(channelName);
         
+        if (channelName === config.botChannel) channelName += "_"
+
         let server = message.guild
         server.createChannel(channelName, "text").then(channel => {
             message.reply("Created channel " + utils.discordCode(channelName));
@@ -783,6 +789,7 @@ module.exports = function(bot) {
                     let cName = acc.channel.name;
                     
                     if (cName !== sName) {
+                        if (cName === config.botChannel) cName += "_"
                         acc.channel.setName(sName);
                         reply += "Renamed " + utils.format(cName, sName, false, false, "->") + "\n";
                     }
@@ -799,7 +806,6 @@ module.exports = function(bot) {
         message.reply(reply);
     }
 }
-    
     
     
     

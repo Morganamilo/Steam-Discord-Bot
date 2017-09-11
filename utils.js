@@ -1,4 +1,4 @@
-const config = require("./config");
+const config = require("./config.js");
 
 module.exports.tokenize = function(str) {
     var inQuotes = false;
@@ -153,7 +153,7 @@ module.exports.simpleFormat = function(left, right, arrow = "<->") {
 }
 
 module.exports.log = function(...args) {
-    if (config.loging) {
+    if (config.logging) {
         console.log(...args)
     }
 }

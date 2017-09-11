@@ -1,6 +1,6 @@
 const utils = require("./utils");
 const bind = require("./bind.js");
-const config = require("./config");
+const config = require("./config.js");
 
 const SteamUser = require('steam-user');
 
@@ -58,7 +58,7 @@ module.exports = function(bot) {
             utils.log("\tTime: " + date);
                         
             server.channels.every(_channel => {
-                if (_channel.name === "bot") {
+                if (_channel.name === config.botChannel) {
                     channel = _channel;
                     return false;
                 }
@@ -68,8 +68,10 @@ module.exports = function(bot) {
             
             if (channel) {
                 let name = account.steam.player_name;
+                if (name === config.botChannel) name += "_"
+
                 channel.guild.createChannel(name, "text").then(newChannel => {
-                    let str = "`bot` -> Recived message on steam from " + name + " but bind is broken " + utils.format("Broken ID", name, true, false) +  "\n" +
+                    let str = utils.discordCode(config.channelName) + " -> Recived message on steam from " + name + " but bind is broken " + utils.format("Broken ID", name, true, false) +  "\n" +
                     "Binding to new channel " + utils.format(newChannel.name, account.steam.player_name) + "\n."; 
 
                     utils.log("Created replacment channel: " + newChannel.name);
@@ -95,6 +97,7 @@ module.exports = function(bot) {
                 bind.bind(cAccount.channelID, steamID);
                 cAccount.channel.send(message);
             } else {
+                if (username === config.botChannel) username += "_"
                 server.createChannel(username, "text").then(channel => {
                     bind.bind(channel.id, steamID);
                     channel.send(message);

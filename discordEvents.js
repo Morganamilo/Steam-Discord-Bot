@@ -1,5 +1,5 @@
 const bind = require("./bind.js");
-const config = require("./config");
+const config = require("./config.js");
 const utils = require("./utils")
 
 module.exports = function(bot) {
@@ -12,7 +12,7 @@ module.exports = function(bot) {
     });
 
     bot.discordBot.on('message', message => {
-        if (message.channel.name === "bot") {
+        if (message.channel.name === config.botChannel) {
             bot.callCommand(message);
         }
 
@@ -37,7 +37,7 @@ module.exports = function(bot) {
                 utils.log("\tServer: " + message.guild.name);
                 utils.log("\tTime: " + message.createdAt.toString());
                 
-                let reply = "`bot` -> Broken bind " + utils.format(message.channel.name, "BrokenID", false, true);
+                let reply = utils.discordCode(config.channelName) + " -> Broken bind " + utils.format(message.channel.name, "BrokenID", false, true);
                 message.reply(reply);
             }
         }
