@@ -9,7 +9,7 @@ module.exports = function(bot) {
         bot.steamBot.setPersona(SteamUser.EPersonaState.Online);
 
         setTimeout(function() {
-            console.log("Logged into Steam as " + bot.steamBot.accountInfo.name);
+            utils.log("Logged into Steam as " + bot.steamBot.accountInfo.name);
 
             bot.isSteamReady = true;
 
@@ -23,7 +23,7 @@ module.exports = function(bot) {
 
     bot.steamBot.on('error', e => {
         // Some error occurred during logon
-        console.log(e);
+        utils.log(e);
     });
 
     bot.steamBot.on('accountInfo', (name, country, authedMachines, flags, facebookID, facebookName) => {
@@ -52,10 +52,10 @@ module.exports = function(bot) {
             let channel;
             let date = new Date();
             
-            console.log("Recived message from steam but bind is broken:");
-            console.log("\tBind: " + utils.simpleFormat("Broken ID", account.steam.playerName));
-            console.log("\tBind ID: " + utils.simpleFormat(account.discordID, account.steamID));
-            console.log("\tTime: " + date);
+            utils.log("Recived message from steam but bind is broken:");
+            utils.log("\tBind: " + utils.simpleFormat("Broken ID", account.steam.playerName));
+            utils.log("\tBind ID: " + utils.simpleFormat(account.discordID, account.steamID));
+            utils.log("\tTime: " + date);
                         
             server.channels.every(_channel => {
                 if (_channel.name === "bot") {
@@ -72,8 +72,8 @@ module.exports = function(bot) {
                     let str = "`bot` -> Recived message on steam from " + name + " but bind is broken " + utils.format("Broken ID", name, true, false) +  "\n" +
                     "Binding to new channel " + utils.format(newChannel.name, account.steam.player_name) + "\n."; 
 
-                    console.log("Created replacment channel: " + newChannel.name);
-                    console.log("Binding to this instead:");
+                    utils.log("Created replacment channel: " + newChannel.name);
+                    utils.log("Binding to this instead:");
                     
                     bind.unbindSteam(account.steamID);
                     bind.bind(newChannel.id, account.steamID);

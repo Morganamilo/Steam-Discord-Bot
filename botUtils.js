@@ -125,7 +125,7 @@ module.exports = function(bot) {
         let currentBinds = bind.getBinds();
         let errors = "";
 
-        console.log("\nChecking binds: ");
+        utils.log("\nChecking binds: ");
 
         for (channelID in currentBinds) {
             let steamID = currentBinds[channelID];
@@ -150,18 +150,18 @@ module.exports = function(bot) {
 
             
             if (!account.channel || !account.steam) {
-                //console.log(utils.format(left, right, leftUnderline, rightUnderline))
+                //utils.log(utils.format(left, right, leftUnderline, rightUnderline))
                 errors += "\t[" + left + "] <-> [" + right + "]" + "\n";
 
             }
         }
         if (errors) {
-            console.log("\tErrors were found: ");
-            console.log(errors);
+            utils.log("\tErrors were found: ");
+            utils.log(errors);
         }
 
         if (!errors) {
-            console.log("\tNo errors found.");
+            utils.log("\tNo errors found.");
         }
     }
 }

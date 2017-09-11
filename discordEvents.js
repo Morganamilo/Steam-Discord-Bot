@@ -4,7 +4,7 @@ const utils = require("./utils")
 
 module.exports = function(bot) {
     bot.discordBot.on('ready', () => {
-        console.log('Logged into Discord as ' + bot.discordBot.user.username);
+        utils.log('Logged into Discord as ' + bot.discordBot.user.username);
         bot.isDiscordReady = true; 
         if (bot.isDiscordReady && bot.isSteamReady) {
             bot.checkBinds();
@@ -30,12 +30,12 @@ module.exports = function(bot) {
                     bot.steamBot.chatMessage(steamID, attachment.url);
                 });
             } else if (accounts.steamID) {
-                console.log("Sent discord message but bind is broken:");
-                console.log("\tBind: " + utils.simpleFormat(message.channel.name, "Broken ID"));
-                console.log("\tBind ID: " + utils.simpleFormat(message.channel.id, accounts.steamID));
-                console.log("\tUser: " + message.author.username);
-                console.log("\tServer: " + message.guild.name);
-                console.log("\tTime: " + message.createdAt.toString());
+                utils.log("Sent discord message but bind is broken:");
+                utils.log("\tBind: " + utils.simpleFormat(message.channel.name, "Broken ID"));
+                utils.log("\tBind ID: " + utils.simpleFormat(message.channel.id, accounts.steamID));
+                utils.log("\tUser: " + message.author.username);
+                utils.log("\tServer: " + message.guild.name);
+                utils.log("\tTime: " + message.createdAt.toString());
                 
                 let reply = "`bot` -> Broken bind " + utils.format(message.channel.name, "BrokenID", false, true);
                 message.reply(reply);

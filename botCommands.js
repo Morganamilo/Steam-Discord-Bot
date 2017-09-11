@@ -5,14 +5,6 @@ const messageSettings = {
   split: true  
 };
 
-function logCmd(message) {
-    console.log("\nCommand executed: ");
-    console.log("\tCommand: " + message.content);
-    console.log("\tUser: " + message.author.username);
-    console.log("\tServer: " + message.guild.name);
-    console.log("\tTime: " + message.createdAt.toString());
-}
-
 module.exports = function(bot) {
     const commands = {};
 
@@ -23,7 +15,7 @@ module.exports = function(bot) {
         
         for (key in terms) {
             let term = terms[key];
-            console.log(term)
+            utils.log(term)
             if (term) {
                 if (term.toLowerCase().includes(search)) {
                     return true;
@@ -183,8 +175,13 @@ module.exports = function(bot) {
         tokens[0] = message;
 
         if (commandFunc) {
-            logCmd(message);
-            commandFunc.apply(this, tokens);
+            utils.log("\nCommand executed: ");
+            utils.log("\tCommand: " + message.content);
+            utils.log("\tUser: " + message.author.username);
+            utils.log("\tServer: " + message.guild.name);
+            utils.log("\tTime: " + message.createdAt.toString());
+            
+            commandFunc(...tokens);
             return true;
         }
         
@@ -285,7 +282,7 @@ module.exports = function(bot) {
                     "Bound " + utils.format(channel.name, sAccount.steam.player_name)
                 );
             }).catch(e => {
-                console.log(e);
+                utils.log(e);
             }); } else {
                 bind.bind(cAccount.channelID, sAccount.steamID);
                 message.reply("Bound " + utils.format(cAccount.channel.name, sAccount.steam.player_name));
@@ -326,7 +323,7 @@ module.exports = function(bot) {
     
     commands["!eval"] = function(message, str) {
         let res = eval(str);
-        console.log(res);
+        utils.log(res);
         message.reply(toString(res));
     }
 
@@ -415,7 +412,7 @@ module.exports = function(bot) {
             message.reply("Created channel " + utils.discordCode(channelName));
         }).catch(e => {
             message.reply("Failed to make channel");
-            console.log(e);
+            utils.log(e);
         });
     }
     

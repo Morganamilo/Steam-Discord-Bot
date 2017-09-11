@@ -3,6 +3,7 @@ module.exports = {
 	"bindConfigPath": "./bindconfig",
 	"sendTyping": true,
 	"receiveTyping": true,
+    "logging": true,
 
 	"steamOptions": {
 		"dataDirectory": "./steamdata",

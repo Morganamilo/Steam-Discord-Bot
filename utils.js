@@ -1,3 +1,5 @@
+const config = require("./config");
+
 module.exports.tokenize = function(str) {
     var inQuotes = false;
     var letters = str.split("");
@@ -146,6 +148,12 @@ module.exports.format = function (left, right, underlineLeft = false, underlineR
     return list;
 }
 
-exports.simpleFormat = function(left, right, arrow = "<->") {
+module.exports.simpleFormat = function(left, right, arrow = "<->") {
     return "[" + left + "] " + arrow + " [" + right;
+}
+
+module.exports.log = function(...args) {
+    if (config.loging) {
+        console.log(...args)
+    }
 }
