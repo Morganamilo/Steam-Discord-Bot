@@ -1,5 +1,5 @@
 servers
-config
+config.json
 .vs
 bindconfig
 steamdata
