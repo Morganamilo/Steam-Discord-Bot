@@ -1,4 +1,4 @@
-const config = require("./config.json");
+const config = require("../config.json");
 
 function defaultTo(key, value, conf = config) {
     if (!conf.hasOwnProperty(key)) {
@@ -12,7 +12,7 @@ defaultTo("botChannel", "bot");
 defaultTo("receiveTyping", true);
 defaultTo("sendTyping", true);
 defaultTo("logging", true);
-defaultTo("bindConfigPath", "./bindconfig");
-defaultTo("dataDirectory", "./steamdata", config.steamOptions);
+defaultTo("bindConfigPath", __dirname + "/../bindconfig");
+defaultTo("dataDirectory", __dirname + "/../steamdata", config.steamOptions);
 
 module.exports = config;

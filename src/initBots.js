@@ -18,8 +18,8 @@ bot.steamBot.setOptions(config.steamOptions)
 bot.steamBot.getPersonas(Object.keys(bot.steamBot.myFriends))
 
 require("./botUtils.js")(bot);
-require("./botCommands.js")(bot);
-require("./botHelp.js")(bot);
+require("./commands.js")(bot);
+require("./help.js")(bot);
 require("./discordEvents.js")(bot);
 require("./steamEvents.js")(bot);
 
