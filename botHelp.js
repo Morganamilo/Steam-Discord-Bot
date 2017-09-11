@@ -23,7 +23,6 @@ module.exports = function(bot) {
 		"    `channels`    Lists all chanels and their binds\n" +
 		"    `idchannels`    Lists all channels and their binds as IDs\n" +
 		"    `binds`    Lists all binds\n" +
-		"    `idbinds`    Lists all binds as IDs\n" +
         "    `vbinds`    List all binds verbosely\n" +
         "    `fixbinds` Fixes broken binds\n" +
 		"    `idbinds`    Lists all binds as IDs\n" +
@@ -175,13 +174,6 @@ module.exports = function(bot) {
         "Fixes all broken binds. Any bind with an ID that can't be resloved to either a Discord channel or Steam user is deleted\n" +
         "Usage:\n" +
         "    `!fixvinds`\n"
-    ;
-    
-    help.idbinds = 
-        "Lists all binds in ID form, showing the channel ID and steam ID. Optionaly a seach term can be used where the list will only contain entries where the steam ID or channel ID contains the search term.\n" +
-        "Usage:\n" +
-        "    `!idbinds`\n" +
-        "    `!idbinds <search>`\n"
     ;
     
     help.unbindall = 
