@@ -3,32 +3,32 @@ module.exports = function(bot) {
 
     help.help = 
         "Help and usage for all commands. Do `!help <command>` for more detail about a specific command.\n" +
-		"    `help`    Shows this help message\n" +
+        "    `help`    Shows this help message\n" +
         "    `bind`    Binds a discord channel to a steam user\n" +
         "    `autobind` Automaticly bind steam friends\n" +
         "    `autorename`    Automaticly renames channels to match their bind\n" +
         "    `ubind`    Unbinds a chennel useing the channel or username\n"+
         "    `cubind`    Unbinds a channel using the channel name\n" +
         "    `subind`    Unbinds a channel using the steam username\n" +
-		"    `mkchannel`    Creates a discord channel\n" +
-		"    `rmchannel`    Deletes channel, unbinds it if bound\n" +
+        "    `mkchannel`    Creates a discord channel\n" +
+        "    `rmchannel`    Deletes channel, unbinds it if bound\n" +
         "    `servername`    Gets the name of the server\n" + 
         "    `serverid`    Gets the ID of the server\n" + 
-		"    `sname`    Gets the steam name associated with a steam ID\n" +
-		"    `sid`    Gets the steam ID associated with a steam name\n" +
-		"    `cname`     Gets the channel name associated with a channel ID\n" +
-		"    `cid`     Gets the channel ID associated with a channel name\n" +
-		"    `friends`    Lists all steam friends and their binds\n" +
-		"    `idfriends`    Lists all steam friends and their binds as IDs\n" +
-		"    `channels`    Lists all chanels and their binds\n" +
-		"    `idchannels`    Lists all channels and their binds as IDs\n" +
-		"    `binds`    Lists all binds\n" +
+        "    `sname`    Gets the steam name associated with a steam ID\n" +
+        "    `sid`    Gets the steam ID associated with a steam name\n" +
+        "    `cname`     Gets the channel name associated with a channel ID\n" +
+        "    `cid`     Gets the channel ID associated with a channel name\n" +
+        "    `friends`    Lists all steam friends and their binds\n" +
+        "    `idfriends`    Lists all steam friends and their binds as IDs\n" +
+        "    `channels`    Lists all chanels and their binds\n" +
+        "    `idchannels`    Lists all channels and their binds as IDs\n" +
+        "    `binds`    Lists all binds\n" +
         "    `vbinds`    List all binds verbosely\n" +
         "    `fixbinds` Fixes broken binds\n" +
-		"    `idbinds`    Lists all binds as IDs\n" +
-		"    `unbindall`    Unbinds all channels\n" +
+        "    `idbinds`    Lists all binds as IDs\n" +
+        "    `unbindall`    Unbinds all channels\n" +
         "    `sort`    Sorts binded channels alphabetically\n"
-	;
+    ;
     
     help.bind =
         "Binds a discord channel to a steam user. If the channel does not already exist it will be created automaticly. If no channel name is specified it will be automaticly generated from the steam name.\n" +

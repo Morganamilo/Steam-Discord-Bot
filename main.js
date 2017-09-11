@@ -27,7 +27,7 @@ require("./steamEvents.js")(bot);
 if (process.argv[2] === "dry") {
     bot.discordBot.destroy();
     bot.steamBot.logOff();
-	bot.steamBot.disconnect();
+    bot.steamBot.disconnect();
     process.exit();
 } else {
     bot.steamBot.logOn(config.steamLogon);
