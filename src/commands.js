@@ -8,33 +8,21 @@ const discordBot = bot.discordBot;
 const steamBot = bot.steamBot;
 
 const messageSettings = {
-  split: true
+    split: true
 };
 
 const commands = {};
 
-let _search = function(terms, search) {
-    if (!search) return true;
-
-    search = search.toLowerCase();
-
-    for (let  key in terms) {
-        let term = terms[key];
-        utils.log(term)
-        if (term) {
-            if (term.toLowerCase().includes(search)) {
-                return true;
-            }
-        }
-    }
-
-    return false;
+let _sortChannel = function(a, b) {
+        return utils.strCompare(a.name, b.name);
 }
 
-
-
-let _friends = function(message, search, showIDs) {
+let _friends = function(message, showIDs, searches) {
     let reply = [];
+
+    if (searches.length === 0 ) {
+        searches[0] = "*";
+    }
 
     for (let id in steamBot.users) {
         if (!utils.isFriend(id)) continue;
@@ -46,40 +34,55 @@ let _friends = function(message, search, showIDs) {
         let channelName = account.channel && account.channel.name;
         let steamName = account.steam && account.steam.player_name;
 
-        if (!_search([channelID, steamID, channelName, steamName], search)) continue;
+        for (let k in searches) {
+            let search = searches[k];
 
-        let left;
-        let right;
-        let underlineRight = false;
+            if (!utils.matches(search, [channelID, steamID, channelName, steamName])) continue;
 
-        if (!showIDs) {
-            left = steamName;
-            right = channelName;
+            let left;
+            let right;
+            let underlineRight = false;
 
-            if (channelID && !channelName) {
-                right = "Broken ID";
-                underlineRight = true
+            if (!showIDs) {
+                left = steamName;
+                right = channelName;
+
+                if (channelID && !channelName) {
+                    right = "Broken ID";
+                    underlineRight = true;
+                }
+            } else {
+                left = steamID;
+                right = channelID;
             }
-        } else {
-            left = steamID;
-            right = channelID;
-        }
 
 
 
-        let r = utils.format(left, right, false, underlineRight);
+            let r = utils.format(left, right, false, underlineRight);
 
-        if (r) {
-            reply.push(r);
+            if (r) {
+                reply.push(r);
+            }
+
+            break;
         }
     }
 
     reply.sort(utils.strCompare);
-    message.reply(reply.join("\n"), messageSettings);
+
+    if (reply.length === 0) {
+        reply = ["No matches"];
+    }
+
+    message.reply("\n" + reply.join("\n"), messageSettings);
 }
 
-let _channels = function(message, search, showIDs) {
+let _channels = function(message, showIDs, searches) {
     let reply = [];
+
+    if (searches.length === 0 ) {
+        searches[0] = "*";
+    }
 
     message.guild.channels.forEach(channel => {
         let account = bind.getBindChannelAcc(channel.id);
@@ -89,42 +92,57 @@ let _channels = function(message, search, showIDs) {
         let channelName = account.channel && account.channel.name;
         let steamName = account.steam && account.steam.player_name;
 
-        if (!_search([channelID, steamID, channelName, steamName], search)) return;
+        for (let k in searches) {
+            let search = searches[k];
+            if (!utils.matches("*" + search + "*", [channelID, steamID, channelName, steamName])) continue;
 
-        let left;
-        let right;
-        let underlineRight = false;
+            let left;
+            let right;
+            let underlineRight = false;
 
-        if (!showIDs) {
-            left = channelName;
-            right = steamName;
+            if (!showIDs) {
+                left = channelName;
+                right = steamName;
 
-            if (steamID && !steamName) {
-                right = "Broken ID";
-                underlineRight = true
+                if (steamID && !steamName) {
+                    right = "Broken ID";
+                    underlineRight = true;
+                }
+            } else {
+                left = channelID;
+                right = steamID;
             }
-        } else {
-            left = channelID;
-            right = steamID;
-        }
 
 
 
-        let r = utils.format(left, right, false, underlineRight);
+            let r = utils.format(left, right, false, underlineRight);
 
-        if (r) {
-            reply.push(r);
+            if (r) {
+                reply.push(r);
+            }
+
+            break;
         }
     });
 
     reply.sort(utils.strCompare);
-    message.reply(reply.join("\n"), messageSettings);
+
+    if (reply.length === 0) {
+        reply = ["No matches"];
+    }
+
+    message.reply("\n" + reply.join("\n"), messageSettings);
 }
 
-let _binds = function(message, search, showIDs) {
+let _binds = function(message, showIDs, searches) {
     let reply = [];
 
+    if (searches.length === 0 ) {
+        searches[0] = "*";
+    }
+
     for (let cID in bind.getBinds()) {
+
         let account = bind.getBindChannelAcc(cID);
 
         let channelID = account.channelID;
@@ -132,42 +150,117 @@ let _binds = function(message, search, showIDs) {
         let channelName = account.channel && account.channel.name;
         let steamName = account.steam && account.steam.player_name;
 
-        if (!_search([channelID, steamID, channelName, steamName], search)) continue;
+        for (let k in searches) {
+            let search = searches[k];
 
-        let left;
-        let right;
-        let underlineRight = false;
-        let underlineLeft = false;
+            if (!utils.matches("*" + search + "*", [channelID, steamID, channelName, steamName])) continue;
 
-        if (!showIDs) {
-            left = channelName;
-            right = steamName;
+            let left;
+            let right;
+            let underlineRight = false;
+            let underlineLeft = false;
 
-            if (steamID && !steamName) {
-                right = "Broken ID";
-                underlineRight = true
+            if (!showIDs) {
+                left = channelName;
+                right = steamName;
+
+                if (steamID && !steamName) {
+                    right = "Broken ID";
+                    underlineRight = true;
+                }
+
+                if (channelID && !channelName) {
+                    left = "Broken ID";
+                    underlineLeft = true;
+                }
+            } else {
+                left = channelID;
+                right = steamID;
             }
 
-            if (channelID && !channelName) {
-                left = "Broken ID";
-                underlineLeft = true
+
+
+            let r = utils.format(left, right, underlineLeft, underlineRight);
+
+            if (r) {
+                reply.push(r);
             }
-        } else {
-            left = channelID;
-            right = steamID;
-        }
 
-
-
-        let r = utils.format(left, right, underlineLeft, underlineRight);
-
-        if (r) {
-            reply.push(r);
+            break;
         }
     }
 
     reply.sort(utils.strCompare);
-    message.reply(reply.join("\n"), messageSettings);
+
+    if (reply.length === 0) {
+        reply = ["No matches"];
+    }
+
+    message.reply("\n" + reply.join("\n"), messageSettings);
+}
+
+let _unbind = function(message, names) {
+    if (names.length === 0) {
+        message.reply("\n" + "Missing Name or ID", messageSettings);
+        return;
+    }
+    
+    let reply = "";
+    let binds = bind.getBinds();
+    
+    for (let channelID in binds) {
+        let steamID = binds[channelID]
+        let cAccount = bind.getBindChannelAcc(channelID)
+        let sAccount = bind.getBindSteamAcc(steamID)
+        
+        let channelName = cAccount.channel && cAccount.channel.name;
+        let steamName = sAccount.steam && sAccount.steam.player_name;
+        
+        let matched = false;
+        
+        for (let k in names) {
+            let name = names[k];
+            
+            if (utils.matches(name, [channelName, steamName, channelID, steamID])) {
+                matched = true;
+            }
+        }
+        
+        if (!matched) {
+            continue;
+        }
+        
+        let left;
+        let right;
+        let underlineLeft;
+        let underlineRight
+        
+        if (channelName) {
+            left = channelName;
+            underlineLeft = false;
+        } else {
+            left = "Broken ID";
+            underlineLeft = true;
+        }
+        
+        if (steamName) {
+            right = steamName;
+            underlineRight = false;
+        } else {
+            right = "Broken ID";
+            underlineRight = true;
+        }
+        
+        reply += "Unbinded " + utils.format(left, right, underlineLeft, underlineRight) + "\n";
+        
+        bind.unbindChannel(channelID);
+    }
+    
+    if (!reply) {
+        reply = "Nothing to unbind";
+    }
+    
+    message.reply("\n" + reply, messageSettings);
 }
 
 commands.callCommand = function(message) {
@@ -178,12 +271,13 @@ commands.callCommand = function(message) {
     tokens[0] = message;
 
     if (commandFunc) {
-        utils.log("\nCommand executed: ");
+        utils.log("Command executed: ");
         utils.log("\tCommand: " + message.content);
         utils.log("\tUser: " + message.author.username);
         utils.log("\tServer: " + message.guild.name);
         utils.log("\tTime: " + message.createdAt.toString());
 
+        lastCommand = message.content;
         commandFunc(...tokens);
         return true;
     }
@@ -191,44 +285,68 @@ commands.callCommand = function(message) {
     return false;
 }
 
+commands["!eval"] = function(message, str) {
+    if (!config.debug) return;
+
+    let res = eval(str);
+    utils.log(res);
+    message.reply("\n" + toString(res), messageSettings);
+}
+
 commands["!help"] = function(message, command = "help") {
     let h = help[command];
 
     if (!h) {
-        help = "No help entry for that command";
+        h = "No help entry for that command";
     }
 
-    message.reply(help);
+    message.reply("\n" + h, messageSettings);
 }
 
-commands["!bind"] = function(message, channelName, steamName) {
+commands["!bind"] = async function(message, channelName, steamName) {
+    let cAccount;
+    let sAccount;
+
+    let channelID;
+    let steamID;
+
+    let cName;
+    let sName;
+
     if (!channelName) {
-        message.reply("Missing channel name");
+        message.reply("\n" + "Missing channel name", messageSettings);
         return;
     }
 
-    if (!steamName) {
-        steamName = channelName;
+    if(!steamName) {
+        sName = channelName
+    } else {
+        sName = steamName
+    }
+
+    steamID = utils.matchSteam(false, [sName], [sName]);
+
+    if (!steamID) {
+        message.reply("\n" + "Can't find Steam user" + utils.discordCode(sName), messageSettings)
+        return;
+    }
+
+    sAccount = bind.getBindSteamAcc(steamID);
+
+    if (steamName) {
+        channelID = utils.matchChannel(false, message.guild, [channelName], [channelName]);
+
+        if (!channelID && (channelName.includes("*") || channelName.includes("?"))) {
+            message.reply("\n" + "No match for channel " + utils.discordCode(channelName), messageSettings);
+            return;
+        }
+    } else {
+        channelID = utils.matchChannel(false, message.guild, null, [utils.toChannelName(sAccount.steam.player_name)]);
+        channelName = sAccount.steam.player_name
     }
 
     channelName = utils.toChannelName(channelName);
-
-    if (channelName === config.botChannel) {
-        message.reply(utils.discordCode(config.botChannel) + " is reserved for commands and can not be bound");
-        return;
-    }
-
-    let cAccount = bind.getBindChannelAccName(message.guild, channelName);
-    let sAccount = bind.getBindSteamAccName(steamName);
-
-    //guarantee sAccount.steam
-    if (!sAccount.steamID) {
-        let sName = utils.discordUnderline(utils.discordCode(steamName));
-        message.reply("Can't find Steam user " + sName);
-        return;
-    }
-
-
+    cAccount = bind.getBindChannelAcc(channelID);
 
     //if steam user is bound
     if (sAccount.channelID) {
@@ -243,7 +361,7 @@ commands["!bind"] = function(message, channelName, steamName) {
             underlineLeft = true
         }
 
-        message.reply("Steam already bound " + utils.format(left, right, underlineLeft, false));
+        message.reply("\n" + "Steam already bound " + utils.format(left, right, underlineLeft, false), messageSettings);
         return;
     }
 
@@ -270,27 +388,31 @@ commands["!bind"] = function(message, channelName, steamName) {
             underlineRight = true
         }
 
-        message.reply("Channel already bound " + utils.format(left, right, underlineLeft, underlineRight));
+        message.reply("\n" + "Channel already bound " + utils.format(left, right, underlineLeft, underlineRight), messageSettings);
         return;
     }
 
-
+    let reply = "";
+    let channel;
+    
+    //if channel doesnt already exist
     if (!cAccount.channel) {
         let server = message.guild;
-        if (channelName === config.botChannel) channelName += "_"
-
-        server.createChannel(channelName, "text").then(channel => {
-            bind.bind(channel.id, sAccount.steamID);
-            message.reply(
-                "Created channel " + utils.discordCode(channelName) + "\n" +
-                "Bound " + utils.format(channel.name, sAccount.steam.player_name)
-            );
+        
+        await server.createChannel(channelName, "text").then(ch => {
+            reply += "Created channel " + utils.discordCode(ch.name) + "zn";
+            channel = ch;
         }).catch(e => {
             utils.log(e);
-        }); } else {
-            bind.bind(cAccount.channelID, sAccount.steamID);
-            message.reply("Bound " + utils.format(cAccount.channel.name, sAccount.steam.player_name));
+        });
+    } else {
+        channel = cAccount.channel
     }
+    
+    bind.bind(cAccount.channelID, sAccount.steamID);
+    reply += "Bound " + utils.format(channel.name, sAccount.steam.player_name);
+    
+    message.reply("\n" + reply, messageSettings);
 }
 
 commands["!autobind"] = function(message) {
@@ -309,7 +431,7 @@ commands["!autobind"] = function(message) {
             if (channel.name === channelName) {
                 let result = bind.bind(channel.id, steamID);
 
-                if (result === bind.SUCCESS) {
+                if (result) {
                     reply += "binded " + utils.format(channel.name, steamName) + "\n";
                 }
 
@@ -324,273 +446,185 @@ commands["!autobind"] = function(message) {
         reply = "No binds changed";
     }
 
-    message.reply(reply, messageSettings);
+    message.reply("\n" + reply, messageSettings);
 }
 
-commands["!eval"] = function(message, str) {
-    let res = eval(str);
-    utils.log(res);
-    message.reply(toString(res));
+commands["!ubind"] = function(message, ...names) {
+    _unbind(message, names)
 }
 
-commands["!ubind"] = function(message, name) {
-    if (!name) {
-        message.reply("Missing channel name or Steam name");
+commands["!mkchannel"] = async function(message, ...names) {
+	let reply = "";
+	let server = message.guild;
+	
+    if (names.length === 0) {
+        message.reply("\n" + "Missing channel name", messageSettings);
         return;
     }
+	
+	for (let k in names) {
+		let name = names[k];
+		
+		name = utils.toChannelName(name);
+		
+		if (name.length < 2 || name.length > 100) {
+			reply += utils.discordCode(name) + " must be between 2 and 100 characters\n";
+			continue;
+		}
 
-    let cAccount = bind.getBindChannelAccName(message.guild, name);
-    let sAccount = bind.getBindSteamAccName(name);
-
-    if (!cAccount.channelID && !sAccount.steamID) {
-        message.reply(utils.discordCode(name) + " is not bound");
-        return;
-    }
-
-    if (cAccount.channelID) {
-        commands["!cubind"](message, name);
-    } else if (sAccount.steamID) {
-        commands["!subind"](message, name);
-    }
+		let res = await server.createChannel(name, "text").then(channel => {
+			reply += "Created channel " + utils.discordCode(name) + "\n"
+		}).catch(e => {
+			utils.log(e);
+			reply += "Could not make channel " + utils.discordCode(name) + "\n";
+		});
+	}
+	
+	message.reply("\n" + reply, messageSettings);
 }
 
-commands["!cubind"] = function(message, channelName) {
-    if (!channelName) {
-        message.reply("Missing channel name");
-        return;
-    }
-
-    let account = bind.getBindChannelAccName(message.guild, channelName);
-    let from;
-
-    if (account.steam) {
-        from = account.steam.player_name;
-    } else {
-        from = "Broken ID";
-    }
-
-    if (!account.steamID) {
-        message.reply(utils.discordCode(channelName) + " is not bound");
-    } else {
-        bind.unbindChannel(account.channelID); 
-        message.reply("Unbound " + utils.discordCode(channelName) + " <-> " + utils.discordCode(from));
-    }
-}
-
-commands["!subind"] = function(message, steamName) {
-    if (!steamName) {
-        message.reply("Missing steam name");
-        return;
-    }
-
-    let account = bind.getBindSteamAccName(steamName);
-    let from;
-
-    if (account.channel) {
-        from = account.channel.name;
-    } else {
-        from = "Broken ID";
-    }
-
-    if (!account.channelID) {
-        message.reply(utils.discordCode(steamName) + " is not bound");
-    } else {
-        bind.unbindSteam(account.steamID); 
-        message.reply("Unbound " + utils.discordCode(from) + " <-> " + utils.discordCode(steamName));
-    }
-}
-
-commands["!mkchannel"] = function(message, channelName) {
-    if (!channelName) {
-        message.reply("Missing channel name");
-        return;
-    }
-
-    if (channelName.length < 2 || channelName.length > 100) {
-        message.reply("Channel name must be between 2 and 100 characters");
-        return;
-    }
-
-    channelName = utils.toChannelName(channelName);
-
-    if (channelName === config.botChannel) channelName += "_"
-
-    let server = message.guild
-    server.createChannel(channelName, "text").then(channel => {
-        message.reply("Created channel " + utils.discordCode(channelName));
-    }).catch(e => {
-        message.reply("Failed to make channel");
-        utils.log(e);
-    });
-}
-
-commands["!rmchannel"] = function(message, channelName) {
+commands["!rmchannel"] = async function(message, ...channelNames) {
     let reply = "";
 
-    if (!channelName) {
-        message.reply("Missing channel name");
+    if (channelNames.length === 0) {
+        message.reply("\n" + "Missing channel name", messageSettings);
         return;
     }
+	
+	for (let k in channelNames) {
+		let channelName = channelNames[k];
+		let account = bind.getBindChannelAccName(message.guild, channelName);
 
-    let account = bind.getBindChannelAccName(message.guild, channelName);
+		if (!account.channel) {
+			reply += "Can't find channel " + utils.discordCode(channelName) + "\n";
+			continue
+		}
 
-    if (!account.channel) {
-        message.reply("Can't find channel " + utils.discordCode(channelName));
-        return;
+		if (bind.unbindChannel(account.channelID)) {
+			let left;
+			let right;
+			let underlineLeft;
+			let underlineRight;
+
+			if (account.steam) {
+				left = account.steam.player_name
+				underlineLeft = false;
+			} else {
+				left = "Broken ID"
+				underlineLeft = true;
+			}
+
+			if (account.channel) {
+				right = account.channel.name;
+				underlineRight = false;
+			} else {
+				right = "Broken ID";
+				underlineRight = true;
+			}
+
+			reply += "Unbound " + utils.format(left, right, underlineLeft, underlineRight) + "\n";
+		}
+
+		await account.channel.delete().then(channel => {
+			reply += "Deleted channel " + utils.discordCode(channelName) + "\n";
+		}).catch(e => {
+			utils.log(e);
+			reply += "Couldn't delete channel " + utils.discordCode(channelName) + "\n";
+		});
+	}
+		
+	message.reply("\n" + reply, messageSettings);
+}
+
+commands["!sid"] = function(message) {
+    message.channel.send(utils.format(message.guild.name, message.guild.id, false, false, "->"));
+}
+
+commands["!fid"] = function(message, ...searches) {
+    let reply = "";
+
+    if (searches.length === 0 ) {
+        searches[0] = "*";
     }
 
-    if (bind.unbindChannel(account.channelID)) {
-        let left;
-        let right;
-        let underlineLeft;
-        let underlineRight;
+    let matches = utils.matchSteam(true, searches, searches);
 
-        if (account.steam) {
-            left = account.steam.player_name
-            underlineLeft = false;
-        } else {
-            left = "Broken ID"
-            underlineLeft = true;
+    for (let k in matches) {
+        let steamID = matches[k];
+
+        let name = utils.getSteamName(steamID);
+
+        if (name) {
+            reply += utils.format(name, steamID, false, false, "->") + "\n";
         }
+    }
 
-        if (account.channel) {
-            right = account.channel.name;
-            underlineRight = false;
-        } else {
-            right = "Broken ID";
-            underlineRight = true;
+    if (!reply) {
+        reply = "Nothing to show";
+    }
+
+    message.reply("\n" + reply, messageSettings);
+}
+
+commands["!cid"] = function(message, ...searches) {
+    let reply = "";
+
+    if (searches.length === 0 ) {
+        searches[0] = "*";
+    }
+
+    let matches = utils.matchChannel(true, message.guild, searches, searches);
+
+    for (let k in matches) {
+        let channelID = matches[k];
+
+        let name = utils.getChannelName(message.guild, channelID);
+
+        if (name) {
+            reply += utils.format(name, channelID, false, false, "->") + "\n";
         }
-
-        reply += "Unbound " + utils.format(left, right, underlineLeft, underlineright) + "\n";
     }
 
-    account.channel.delete().then(channel => {
-        reply += "Deleted channel " + utils.discordCode(channelName);
-        message.reply(reply);
-    });
-}
-
-commands["!servername"] = function(message) {
-    message.reply(message.guild.name);
-}
-
-commands["!serverid"] = function(message, serverName) {
-     message.reply(message.guild.id);
-}
-
-commands["!sname"] = function(message, steamID) {
-    if (!steamID) {
-        message.reply("Missing Steam ID");
-        return;
+    if (!reply) {
+        reply = "Nothing to show";
     }
 
-    let name = utils.getSteamName(steamID);
-
-    if (name) {
-        message.reply(utils.discordCode(name));
-    } else {
-        message.reply("Can't find Steam user with ID " + utils.discordCode(steamID));
-    }
+    message.reply("\n" + reply, messageSettings);
 }
 
-commands["!sid"] = function(message, steamName) {
-    if (!steamName) {
-        message.reply("Missing Steam name");
-        return;
-    }
-
-    let id = utils.getSteamID(steamName);
-
-    if (id) {
-        message.reply(utils.discordCode(id));
-    } else {
-        message.reply("Cant find Steam user " + utils.discordCode(steamName));
-    }
+commands["!friends"] = function(message, ...searches) {
+    _friends(message, false, searches);
 }
 
-commands["!cname"] = function(message, channelID) {
-    if (!channelID) {
-        message.reply("Missing channel ID");
-        return;
-    }
-
-    let name = utils.getChannelName(message.guild, channelID);
-
-    if (name) {
-        message.reply(utils.discordCode(name));
-    } else {
-        message.reply("Cant find channel with ID " + utils.discordCode(channelID));
-    }
+commands["!idfriends"] = function(message, ...searches) {
+    _friends(message, true, searches);
 }
 
- commands["!cid"] = function(message, channelName) {
-    if (!channelName) {
-        message.reply("Missing channel name");
-        return;
-    }
-
-    channelName = utils.toChannelName(channelName);
-    let id = utils.getChannelID(message.guild, channelName);
-
-    if (id) {
-        message.reply(utils.discordCode(id));
-    } else {
-        message.reply("Cant find channel " + utils.discordCode(channelName));
-    }
+commands["!channels"] = function(message, ...searches) {
+    _channels(message, false, searches);
 }
 
-commands["!friends"] = function(message, search) {
-    _friends(message, search, false);
-}
-
-commands["!idfriends"] = function(message, search) {
-    _friends(message, search, true);
-}
-
-commands["!channels"] = function(message, search) {     
-    _channels(message, search, false);
-}
-
-commands["!idchannels"] = function(message, search) {     
-    _channels(message, search, true);
+commands["!idchannels"] = function(message, ...searches) {
+    _channels(message, true, searches);
 
 }
 
-commands["!binds"] = function(message, search) {
-   _binds(message, search, false);
+commands["!binds"] = function(message, ...searches) {
+    _binds(message, false, searches);
 }
 
-commands["!idbinds"] = function(message, search) {
-   _binds(message, search, true);
+commands["!idbinds"] = function(message, ...searches) {
+   _binds(message, true, searches);
 }
 
-commands["!vbinds"] = function(message, search, name = "") {
-    let binds;
+commands["!vbinds"] = function(message, ...searches) {
+    let binds = bind.getBinds();
     let acc;
-
-    if (search == "cid") {
-        acc = bind.getBindChannelAcc(name)
+    
+    if (searches.length === 0) {
+        searches[0] = "*";
     }
-
-    if (search == "cname") {
-        acc = bind.getBindChannelAccName(discordBot, name)
-    }
-
-    if (search == "sid") {
-        acc = bind.getBindSteamAcc(name)
-    }
-
-    if (search == "sname") {
-        acc = bind.getBindSteamAccName(name)
-    }
-
-    if (acc) {
-        binds = {};
-        binds[acc.channelID] = acc.steamID;
-    } else {
-        binds = bind.getBinds();
-    }
-
+    
 
     let reply = ""
 
@@ -599,11 +633,23 @@ commands["!vbinds"] = function(message, search, name = "") {
     let t3 = t2 + t1
 
     for (let channelID in binds) {
+        let matched = false
         let steamID = binds[channelID];
 
         let cAccount = bind.getBindChannelAcc(channelID);
         let sAccount = bind.getBindSteamAcc(steamID)
 
+        let channelName = cAccount.channel && cAccount.channel.name;
+        let steamName = sAccount.steam && sAccount.steam.player_name;
+        
+        for (let k in searches) {
+            let search = searches[k];
+            
+            if (utils.matches(search, [channelID, steamID, channelName, steamName])) matched = true;
+        }
+        
+        if (!matched) continue;
+        
         reply += utils.discordBold("Bind " + utils.discordCode(channelID) + " <-> " + utils.discordCode(steamID) + " ->") + "\n";
 
         reply += t1 + utils.discordBold("Discord Channel ->") + "\n";
@@ -636,7 +682,7 @@ commands["!vbinds"] = function(message, search, name = "") {
             reply += t2 + utils.discordUnderline("Could not find ID") + "\n"; //this should be impossible
         }
 
-        reply += "\n";            
+        reply += "\n";
 
         reply += t1 + utils.discordBold("Steam user ->") + "\n";
 
@@ -666,15 +712,15 @@ commands["!vbinds"] = function(message, search, name = "") {
 
         } else {
             reply += t2 + utils.discordUnderline("Could not find ID") + "\n"; //this should be impossible
-        }            
+        }
 
-        reply += "\n";            
-        reply += "\n"; 
+        reply += "\n";
+        reply += "\n";
 
 
     }
 
-    message.reply(reply, messageSettings);
+    message.reply("\n" + reply, messageSettings);
 }
 
 commands["!fixbinds"] = function(message) {
@@ -715,13 +761,11 @@ commands["!fixbinds"] = function(message) {
         reply = "Nothing to fix :D";
     }
 
-    message.reply(reply);
+    message.reply("\n" + reply, messageSettings);
 }
 
 commands["!unbindall"] = function(message) {
-    bind.unbindAll();
-
-    message.reply("Reset binds");
+    _unbind(message, ["*"]);
 }
 
 commands["!sort"] = function(message) {
@@ -742,11 +786,7 @@ commands["!sort"] = function(message) {
         }
     });
 
-    let sort = function(a, b) {
-        return utils.strCompare(a.name, b.name);
-    }
-
-    channels.sort(sort);
+    channels.sort(_sortChannel);
 
     for (let index in channels) {
         channelPositions.push({
@@ -756,34 +796,23 @@ commands["!sort"] = function(message) {
     }
 
     server.setChannelPositions(channelPositions).then(_ => {
-        message.reply("Sorted channels")
+        message.reply("\n" + "Sorted channels", messageSettings)
     });
 }
 
-commands["!autorename"] = function(message, channelName) {
-    let channels;
-    let account = bind.getBindChannelAccName(message.guild, channelName);
+commands["!autorename"] = function(message, ...searches) {
+    if (searches.length === 0) {
+        searches[0] = "*";
+    }
+    
+    let channels = utils.matchChannel(true, message.guild, searches, searches);
     let reply = "";
 
-    if (channelName) {
-        if (account.channel) {
-            if (account.steamID) {
-                channels = [message.guild.channels.get(account.channelID)];
-            } else {
-                message.reply("Cant rename" + utils.discordCode(toChannelName) + "because it is not bound")
-                return;
-            }
-        } else {
-            message.reply("Channel does not exist " + utils.discordCode(channelName))
-            return;
-        }
-    } else {
-        channels = message.guild.channels.array();
-    }
-
+    console.log(channels)
+    
     for (let n in channels) {
-        let channel = channels[n];
-        let acc = bind.getBindChannelAcc(channel.id);
+        let channelID = channels[n];
+        let acc = bind.getBindChannelAcc(channelID);
 
         if (acc.steamID) {
             if (acc.steam) {
@@ -796,30 +825,16 @@ commands["!autorename"] = function(message, channelName) {
                     reply += "Renamed " + utils.format(cName, sName, false, false, "->") + "\n";
                 }
             } else {
-                reply += "Can't rename broken bind " + utils.format(acc.channel.name, "Broken ID", false, true); 
+                reply += "Can't rename broken bind " + utils.format(acc.channel.name, "Broken ID", false, true);
             }
-        } 
+        }
     }
 
     if (!reply) {
         reply = "Nothing to rename";
     }
 
-    message.reply(reply);
+    message.reply("\n" + reply, messageSettings);
 }
 
 module.exports = commands;
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    

@@ -7,6 +7,7 @@ const discordBot = bot.discordBot;
 const steamBot = bot.steamBot;
 
 const utils = {};
+ 
 utils.tokenize = function(str) {
     let inQuotes = false;
     let letters = str.split("");
@@ -64,6 +65,10 @@ utils.keyOf = function(obj, value) {
 
 utils.toChannelName = function(str){
     str = str.replace(/[^0-9a-z_\-]/gi, "_").toLowerCase();
+    if (str === config.botChannel) {
+        str += "_";
+    }
+    
     return str;
 }
 
@@ -286,6 +291,158 @@ utils.checkBinds = function () {
         utils.log("\tNo errors found.");
     }
 }
+
+utils.search = function(str, searchThrough) {
+    if (!str) return true;
+
+    str = str.toLowerCase();
+
+    for (let  key in searchThrough) {
+        let srch = searchThrough[key];
+
+        if (srch) {
+            if (srch.toLowerCase().includes(str)) {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+utils.match = function(pattern, match, n = 0, s = 0) {
+    //console.log(n);
+    //console.log(s);
+    //console.log("match " + pattern.substr(n) + "\t")
+    //console.log(" with " + match.substr(s) + "\n")
+    if (!pattern || !match) return false;
+
+    for (; n <= Math.max(pattern.length, match.length); n++, s++) {
+        let c = pattern[n];
+        let mc = match[s];
+
+        if (c === "?") {
+            if (!mc) return false;
+            continue;
+        }
+
+        if (c === "*") {
+            while(pattern[n + 1] === "*") {
+                n++
+            }
+
+            if (!pattern[n+1]) return true;
+
+            for (let _s = s; _s < Math.max(pattern.length, match.length); _s++) {
+                let m = utils.match(pattern, match, n + 1, _s);
+
+                if (m) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        if (c !== mc) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+utils.matches = function(pattern, matches) {
+    for (let k in matches) {
+        let match = matches[k];
+        
+        if (match && utils.match(pattern, match)) return match;
+    }
+}
+
+utils.matchSteam = function(allowMultiple, steamNames, steamIDs) {
+    let users = steamBot.users
+    let matches = [];
+    
+    let _sortSteam = function(a, b) {
+        return utils.strCompare(utils.getSteamName(a), utils.getSteamName(b));
+    }
+    
+    userLoop:
+    for (let id in users) {
+        let user = users[id];
+        
+        if (!utils.isFriend(id)) continue;
+        
+        for  (let k in steamIDs) {
+            let steamID = steamIDs[k];
+
+            if (utils.match(steamID, id)) {
+                matches.push(id);
+                if (!allowMultiple) break userLoop;
+                continue userLoop
+            }
+        }
+        
+        for (let k in steamNames) {
+            let steamName = steamNames[k];
+            
+            if (utils.match(steamName, user.player_name)) {
+                matches.push(id);
+                if (!allowMultiple) break userLoop;
+                continue userLoop
+            }
+            
+        }
+    }
+
+    if (!allowMultiple) return matches[0];
+
+    matches.sort(_sortSteam);
+    
+    return matches;
+}
+
+utils.matchChannel = function(allowMultiple, server, channelIDs, channelNames) {
+    let channels = server.channels;
+    let matches = [];
+    
+    let _sortChan = function(a, b) {
+        return utils.strCompare(utils.getChannelName(server, a), utils.getChannelName(server, b))
+    }
+    
+    channels.every(channel => {
+        if (channel.constructor.name !== "TextChannel") return true;
+        
+        for (let k in channelIDs) {
+            let channelID = channelIDs[k];
+            
+            if (utils.match(channelID, channel.id)) {
+                matches.push(channel.id);
+                return allowMultiple;
+            }
+        }
+        
+        for (let k in channelNames) {
+            let channelName = channelNames[k];
+            
+            if ( utils.match(channelName, channel.name)) {
+                matches.push(channel.id);
+                return allowMultiple;
+
+            }
+        }
+        
+        return true;
+    });
+    
+    if (!allowMultiple) return matches[0];
+
+    matches.sort(_sortChan);
+    
+    return matches;
+}
+
 
 module.exports = utils;
 const bind = require("./bind.js");

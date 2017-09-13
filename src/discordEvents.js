@@ -25,7 +25,7 @@ discordBot.on('message', message => {
         let accounts = bind.getBindChannelAcc(message.channel.id)
         let steamID = accounts.steamID
 
-        if (accounts.steam) {        
+        if (accounts.steam) {
             if (message.content) {
                 steamBot.chatMessage(steamID, message.content);
             }
@@ -42,7 +42,7 @@ discordBot.on('message', message => {
             utils.log("\tTime: " + message.createdAt.toString());
 
             let reply = utils.discordCode(config.channelName) + " -> Broken bind " + utils.format(message.channel.name, "BrokenID", false, true);
-            message.reply(reply);
+            message.reply("\n" + reply);
         }
     }
 

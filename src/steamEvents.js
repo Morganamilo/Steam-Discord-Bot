@@ -42,7 +42,7 @@ steamBot.on('accountInfo', (name, country, authedMachines, flags, facebookID, fa
     steamBot.accountInfo = accountInfo;
 });
 
-steamBot.on('friendMessage', (senderID, message) => {
+steamBot.on('friendMessage', async function(senderID, message) {
     let steamID = senderID.getSteamID64();
     let account = bind.getBindSteamAcc(steamID);
 
@@ -89,23 +89,25 @@ steamBot.on('friendMessage', (senderID, message) => {
         }
     } else {
         //just get the first server
-        let username = utils.toChannelName(utils.getSteamName(steamID).substr(0, 100));
+        let username = utils.toChannelName(utils.getSteamName(steamID));
 
         if (username.length < 2) {
             username += "_";
         }
 
         let cAccount = bind.getBindChannelAccName(server, username);
-        if (cAccount.channelID && !cAccount.steamID) {
-            bind.bind(cAccount.channelID, steamID);
-            cAccount.channel.send(message);
-        } else {
-            if (username === config.botChannel) username += "_"
-            server.createChannel(username, "text").then(channel => {
-                bind.bind(channel.id, steamID);
-                channel.send(message);
+        let channel;
+        
+        if (!cAccount.channelID || cAccount.steamID) {
+            await server.createChannel(username, "text").then(ch => {
+                channel = ch;
             });
+        } else {
+            channel = cAccount.channel;
         }
+        
+        bind.bind(channel.id, steamID);
+        channel.send(message);
     }
 });
 
