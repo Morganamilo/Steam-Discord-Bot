@@ -17,6 +17,12 @@ let _sortChannel = function(a, b) {
         return utils.strCompare(a.name, b.name);
 }
 
+let _sortPositions = function(a, b) {
+    if (a.position > b.position) return 1;
+    if (a.position < b.position) return -1;
+    return 0;
+}
+
 let _friends = function(message, showIDs, searches) {
     let reply = [];
 
@@ -454,33 +460,33 @@ commands["!ubind"] = function(message, ...names) {
 }
 
 commands["!mkchannel"] = async function(message, ...names) {
-	let reply = "";
-	let server = message.guild;
-	
+    let reply = "";
+    let server = message.guild;
+    
     if (names.length === 0) {
         message.reply("\n" + "Missing channel name", messageSettings);
         return;
     }
-	
-	for (let k in names) {
-		let name = names[k];
-		
-		name = utils.toChannelName(name);
-		
-		if (name.length < 2 || name.length > 100) {
-			reply += utils.discordCode(name) + " must be between 2 and 100 characters\n";
-			continue;
-		}
+    
+    for (let k in names) {
+        let name = names[k];
+        
+        name = utils.toChannelName(name);
+        
+        if (name.length < 2 || name.length > 100) {
+            reply += utils.discordCode(name) + " must be between 2 and 100 characters\n";
+            continue;
+        }
 
-		let res = await server.createChannel(name, "text").then(channel => {
-			reply += "Created channel " + utils.discordCode(name) + "\n"
-		}).catch(e => {
-			utils.log(e);
-			reply += "Could not make channel " + utils.discordCode(name) + "\n";
-		});
-	}
-	
-	message.reply("\n" + reply, messageSettings);
+        let res = await server.createChannel(name, "text").then(channel => {
+            reply += "Created channel " + utils.discordCode(name) + "\n"
+        }).catch(e => {
+            utils.log(e);
+            reply += "Could not make channel " + utils.discordCode(name) + "\n";
+        });
+    }
+    
+    message.reply("\n" + reply, messageSettings);
 }
 
 commands["!rmchannel"] = async function(message, ...channelNames) {
@@ -490,50 +496,50 @@ commands["!rmchannel"] = async function(message, ...channelNames) {
         message.reply("\n" + "Missing channel name", messageSettings);
         return;
     }
-	
-	for (let k in channelNames) {
-		let channelName = channelNames[k];
-		let account = bind.getBindChannelAccName(message.guild, channelName);
+    
+    for (let k in channelNames) {
+        let channelName = channelNames[k];
+        let account = bind.getBindChannelAccName(message.guild, channelName);
 
-		if (!account.channel) {
-			reply += "Can't find channel " + utils.discordCode(channelName) + "\n";
-			continue
-		}
+        if (!account.channel) {
+            reply += "Can't find channel " + utils.discordCode(channelName) + "\n";
+            continue
+        }
 
-		if (bind.unbindChannel(account.channelID)) {
-			let left;
-			let right;
-			let underlineLeft;
-			let underlineRight;
+        if (bind.unbindChannel(account.channelID)) {
+            let left;
+            let right;
+            let underlineLeft;
+            let underlineRight;
 
-			if (account.steam) {
-				left = account.steam.player_name
-				underlineLeft = false;
-			} else {
-				left = "Broken ID"
-				underlineLeft = true;
-			}
+            if (account.steam) {
+                left = account.steam.player_name
+                underlineLeft = false;
+            } else {
+                left = "Broken ID"
+                underlineLeft = true;
+            }
 
-			if (account.channel) {
-				right = account.channel.name;
-				underlineRight = false;
-			} else {
-				right = "Broken ID";
-				underlineRight = true;
-			}
+            if (account.channel) {
+                right = account.channel.name;
+                underlineRight = false;
+            } else {
+                right = "Broken ID";
+                underlineRight = true;
+            }
 
-			reply += "Unbound " + utils.format(left, right, underlineLeft, underlineRight) + "\n";
-		}
+            reply += "Unbound " + utils.format(left, right, underlineLeft, underlineRight) + "\n";
+        }
 
-		await account.channel.delete().then(channel => {
-			reply += "Deleted channel " + utils.discordCode(channelName) + "\n";
-		}).catch(e => {
-			utils.log(e);
-			reply += "Couldn't delete channel " + utils.discordCode(channelName) + "\n";
-		});
-	}
-		
-	message.reply("\n" + reply, messageSettings);
+        await account.channel.delete().then(channel => {
+            reply += "Deleted channel " + utils.discordCode(channelName) + "\n";
+        }).catch(e => {
+            utils.log(e);
+            reply += "Couldn't delete channel " + utils.discordCode(channelName) + "\n";
+        });
+    }
+        
+    message.reply("\n" + reply, messageSettings);
 }
 
 commands["!sid"] = function(message) {
@@ -769,9 +775,11 @@ commands["!unbindall"] = function(message) {
 }
 
 commands["!sort"] = function(message) {
-    let server = message.guild;    
+    let server = message.guild;
     let channelCollection = server.channels;
+    
     let channels = [];
+    let noChannels = []
     let channelPositions = [];
     let noCount = 0;
 
@@ -781,20 +789,35 @@ commands["!sort"] = function(message) {
             if (bind.getBindChannel(channel.id)) {
                 channels.push(channel);
             } else {
-                noCount++;
+                noCount++
+                noChannels.push(channel)
             }
         }
     });
 
+    noChannels.sort(_sortPositions);
     channels.sort(_sortChannel);
+    
+    for (let pos in noChannels) {
+        let channel = noChannels[pos]
+        channelPositions.push({
+            channel: channel.id,
+            position: pos
+        });
+    }
 
-    for (let index in channels) {
+    for (let index = 0; index < channels.length; index++) {
         channelPositions.push({
             channel: channels[index].id,
             position: index + noCount
         });
     }
+    
 
+    for (let id in channelPositions) {
+        console.log(utils.getChannelName(message.guild, channelPositions[id].channel), channelPositions[id].position);
+    }
+    
     server.setChannelPositions(channelPositions).then(_ => {
         message.reply("\n" + "Sorted channels", messageSettings)
     });
