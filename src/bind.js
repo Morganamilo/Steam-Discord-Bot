@@ -41,7 +41,7 @@ bind.bind = function(channelID, steamID) {
     saveFile();
     
     utils.log("Bound:");
-    utils.log("\t[" + channelID +"] <-> [" + steamID + "]")
+    utils.log("\t" + utils.simpleFormat(channelID, steamID));
     
     return true;
 }
@@ -56,7 +56,7 @@ bind.unbindChannel = function(channelID) {
     saveFile()
     
     utils.log("Unbound using channelID:");
-    utils.log("\t[" + channelID +"] <-> [" + steamID + "]")
+    utils.log("\t" + utils.simpleFormat(channelID, steamID));
     
     return steamID;
 }
@@ -73,7 +73,7 @@ bind.unbindSteam = function(steamID) {
     saveFile()
     
     utils.log("Unbound using steamID:");
-    utils.log("\t[" + key +"] <-> [" + steamID + "]")
+    utils.log("\t" + utils.simpleFormat(key, steamID));
     
     return key
 }

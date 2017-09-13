@@ -161,7 +161,7 @@ utils.format = function (left, right, underlineLeft = false, underlineRight = fa
 }
 
 utils.simpleFormat = function(left, right, arrow = "<->") {
-    return "[" + left + "] " + arrow + " [" + right;
+    return "[" + left + "] " + arrow + " [" + right + "]";
 }
 
 utils.log = function(...args) {
@@ -181,7 +181,7 @@ utils.getSteamName = function(steamID) {
 }
 
 utils.getSteamID = function(name) {
-    for (let  userID in steamBot.users) {    
+    for (let  userID in steamBot.users) {
         if (!utils.isFriend(userID)) continue;
 
         let user = steamBot.users[userID];
@@ -190,35 +190,19 @@ utils.getSteamID = function(name) {
 }
 
 utils.getChannelID = function(server, name) {
-    let channelID;
-
-    server.channels.every(channel => {
-        if (channel.constructor.name === "TextChannel") {
-            if (channel.name === name) {
-                channelID = channel.id;
-                return false;
-            }
-        }
-
-        return true;
+    let channel = server.channels.find(ch => {
+        return ch.constructor.name === "TextChannel" && ch.name === name;
     });
-
-    return channelID;
+    
+    return channel && channel.id;
 }
 
 utils.getChannelName = function(server, channelID) {
-    let channelName;
-
-    server.channels.every( channel => {
-        if (channel.id === channelID && channel.constructor.name === "TextChannel") {
-            channelName = channel.name;
-            return false;
-        }
-
-        return true;
+    let channel = server.channels.find( ch => {
+        return ch.id === channelID && ch.constructor.name === "TextChannel";
     });
 
-    return channelName;
+    return channel && channel.name;
 }
 
  utils.isFriend = function(steamID) {

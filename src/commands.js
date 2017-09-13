@@ -406,7 +406,7 @@ commands["!bind"] = async function(message, channelName, steamName) {
         let server = message.guild;
         
         await server.createChannel(channelName, "text").then(ch => {
-            reply += "Created channel " + utils.discordCode(ch.name) + "zn";
+            reply += "Created channel " + utils.discordCode(ch.name) + "\n";
             channel = ch;
         }).catch(e => {
             utils.log(e);
@@ -415,7 +415,7 @@ commands["!bind"] = async function(message, channelName, steamName) {
         channel = cAccount.channel
     }
     
-    bind.bind(cAccount.channelID, sAccount.steamID);
+    bind.bind(channel.channelID, sAccount.steamID);
     reply += "Bound " + utils.format(channel.name, sAccount.steam.player_name);
     
     message.reply("\n" + reply, messageSettings);
@@ -813,11 +813,6 @@ commands["!sort"] = function(message) {
         });
     }
     
-
-    for (let id in channelPositions) {
-        console.log(utils.getChannelName(message.guild, channelPositions[id].channel), channelPositions[id].position);
-    }
-    
     server.setChannelPositions(channelPositions).then(_ => {
         message.reply("\n" + "Sorted channels", messageSettings)
     });
@@ -830,8 +825,6 @@ commands["!autorename"] = function(message, ...searches) {
     
     let channels = utils.matchChannel(true, message.guild, searches, searches);
     let reply = "";
-
-    console.log(channels)
     
     for (let n in channels) {
         let channelID = channels[n];

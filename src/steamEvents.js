@@ -47,26 +47,25 @@ steamBot.on('friendMessage', async function(senderID, message) {
     let account = bind.getBindSteamAcc(steamID);
 
     let channelID = account.channelID;
-    let server = discordBot.guilds.array()[0]; 
+    let server = discordBot.channels.find("name", config.botChannel)
+    if (server) {
+        server = server.guild;
+    } else {
+        server = discordBot.guilds.first();
+    }
+    
+    if (!server) return;
 
     if (account.channel) {
         account.channel.send(message);
     } else if (account.channelID) {
-        let channel;
-        let date = new Date();
-
         utils.log("Recived message from steam but bind is broken:");
         utils.log("\tBind: " + utils.simpleFormat("Broken ID", account.steam.playerName));
         utils.log("\tBind ID: " + utils.simpleFormat(account.discordID, account.steamID));
         utils.log("\tTime: " + date);
 
-        server.channels.every(_channel => {
-            if (_channel.name === config.botChannel) {
-                channel = _channel;
-                return false;
-            }
-
-            return true;
+        let server = server.channels.search(_channel => {
+            return  _channel.name === config.botChannel && _channel.constructor.name === "TextChannel";
         });
 
         if (channel) {
@@ -88,7 +87,6 @@ steamBot.on('friendMessage', async function(senderID, message) {
             });
         }
     } else {
-        //just get the first server
         let username = utils.toChannelName(utils.getSteamName(steamID));
 
         if (username.length < 2) {

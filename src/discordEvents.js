@@ -9,6 +9,9 @@ const steamBot = bot.steamBot;
 
 discordBot.on('ready', () => {
     utils.log('Logged into Discord as ' + discordBot.user.username);
+    discordBot.user.setGame("<3");
+    
+    
     bot.isDiscordReady = true; 
     if (bot.isDiscordReady && bot.isSteamReady) {
         utils.checkBinds();
@@ -78,6 +81,6 @@ discordBot.on("messageUpdate", (oldMessage, newMessage) => {
             if (newMessage.content) {
                 steamBot.chatMessage(steamID, newMessage.content + "*");
             }
-        }   
+        }
     }
 });
