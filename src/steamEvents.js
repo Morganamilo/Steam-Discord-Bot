@@ -51,6 +51,7 @@ steamBot.on('friendMessage', async function(senderID, message) {
     if (server) {
         server = server.guild;
     } else {
+        utils.log("Couldnt find bot channel")
         server = discordBot.guilds.first();
     }
     
@@ -97,9 +98,11 @@ steamBot.on('friendMessage', async function(senderID, message) {
         let channel;
         
         if (!cAccount.channelID || cAccount.steamID) {
-            await server.createChannel(username, "text").then(ch => {
-                channel = ch;
-            });
+            try {
+                channel = await server.createChannel(username, "text");
+            } catch(err) {
+                utils.log(err);
+            }
         } else {
             channel = cAccount.channel;
         }

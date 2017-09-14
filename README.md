@@ -26,7 +26,7 @@ Start the bot:
 
 ## Usage
 
-Create a server and add your Discord bot to it. It is intended that only you and your Discord bot are added to the server as anyone in the server will beable to send and receive messages as if they where you.
+Create a server and add your Discord bot to it. It is intended that only you and your Discord bot are added to the server as anyone in the server will be able to send and receive messages as if they where you.
 
 Commands can be sent to the bot in the bot channel. The default name for this channel is `bot` but this can be changed in the config file.
 

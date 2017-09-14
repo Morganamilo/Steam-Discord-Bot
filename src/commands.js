@@ -405,17 +405,17 @@ commands["!bind"] = async function(message, channelName, steamName) {
     if (!cAccount.channel) {
         let server = message.guild;
         
-        await server.createChannel(channelName, "text").then(ch => {
-            reply += "Created channel " + utils.discordCode(ch.name) + "\n";
-            channel = ch;
-        }).catch(e => {
-            utils.log(e);
-        });
+        try {
+            channel = await server.createChannel(channelName, "text");
+            reply += "Created channel " + utils.discordCode(channel.name) + "\n";
+        } catch(err) {
+           utils.log(err);
+        }
     } else {
         channel = cAccount.channel
     }
     
-    bind.bind(channel.channelID, sAccount.steamID);
+    bind.bind(channel.id, sAccount.steamID);
     reply += "Bound " + utils.format(channel.name, sAccount.steam.player_name);
     
     message.reply("\n" + reply, messageSettings);
@@ -478,12 +478,13 @@ commands["!mkchannel"] = async function(message, ...names) {
             continue;
         }
 
-        let res = await server.createChannel(name, "text").then(channel => {
-            reply += "Created channel " + utils.discordCode(name) + "\n"
-        }).catch(e => {
-            utils.log(e);
+        try {
+            let channel = await server.createChannel(name, "text");
+            reply += "Created channel " + utils.discordCode(channel.name) + "\n";
+        } catch (err) {
+            utils.log(err);
             reply += "Could not make channel " + utils.discordCode(name) + "\n";
-        });
+        }
     }
     
     message.reply("\n" + reply, messageSettings);
@@ -531,12 +532,13 @@ commands["!rmchannel"] = async function(message, ...channelNames) {
             reply += "Unbound " + utils.format(left, right, underlineLeft, underlineRight) + "\n";
         }
 
-        await account.channel.delete().then(channel => {
+        try {
+            let channel = await account.channel.delete();
             reply += "Deleted channel " + utils.discordCode(channelName) + "\n";
-        }).catch(e => {
-            utils.log(e);
+        }    catch(err) {
+            utils.log(err);
             reply += "Couldn't delete channel " + utils.discordCode(channelName) + "\n";
-        });
+        }
     }
         
     message.reply("\n" + reply, messageSettings);
