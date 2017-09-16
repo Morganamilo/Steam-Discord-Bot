@@ -165,8 +165,10 @@ utils.simpleFormat = function(left, right, arrow = "<->") {
 }
 
 utils.log = function(...args) {
+    let date = new Date();
+
     if (config.logging) {
-        console.log(...args)
+        console.log("[" + date + "]", ...args)
     }
 }
 

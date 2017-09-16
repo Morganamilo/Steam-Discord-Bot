@@ -25,7 +25,20 @@ steamBot.on('loggedOn', details => {
 });
 
 steamBot.on('error', e => {
-    // Some error occurred during logon
+    let channel = discordBot.channels.find("name", config.botChannel)
+    
+    if (bot.isDiscordReady) {
+        if (!channel) {
+            utils.log("Couldnt find bot channel")
+            server = discordBot.channels.first();
+        }
+
+	channel.send("Error logging into Steam");	
+    } else {
+        utils.log("Discord is not ready to display error");
+    }
+	
+    utils.log("Error logging in to Steam");
     utils.log(e);
 });
 
