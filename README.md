@@ -38,9 +38,9 @@ Note `channel name` can always be substituted with `channel ID` and `Steam name`
 
 To create a bind simply do `!bind <Steam name>`. If you wish to specify the channel name do `!bind <channel name> <Steam name>`. Otherwise the channel name will be the same as the steam name.
 
-This create a bind between the steam user and a channel. If the channel does not exist it will be created automatically.
+This creates a bind between the steam user and a channel. If the channel does not exist it will be created automatically.
 
-Another way to create a bind is create a channel with the same name as your steam friend and do `!autobind`. It will detect channels with a matching name and bind them together.
+Another way to create a bind is to create a channel with the same name as your steam friend and do `!autobind`. It will detect channels with a matching name and bind them together.
 
 If you receive a message on Steam from a user that has no bind, a bind will automatically be created equivalent to calling `!bind <Steam name>`.
 
@@ -50,7 +50,7 @@ To delete a bind manually do `!ubind <channel name>` or `!ubind <Steam name>`. I
 
 Sometimes a bind may become broken. This can be caused by deleting a channel or removing a Steam friend while the bot is not running.
 
-To simply delete all the broken binds do `!fixbinds` To delete just one do `!ubind <channel name>` or `!ubind <Steam name>`. Alternatively re-friending that user will also fix the bind.
+To simply delete all the broken binds do `!fixbinds`. To delete just one do `!ubind <channel name>` or `!ubind <Steam name>`. Alternatively re-friending that user will also fix the bind.
 
 ## Config
 
