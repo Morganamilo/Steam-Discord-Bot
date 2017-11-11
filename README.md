@@ -26,13 +26,13 @@ Start the bot:
 
 ## Usage
 
-Create a server and add your Discord bot to it. It is intended that only you and your Discord bot are added to the server as anyone in the server will be able to send and receive messages as if they where you.
+Create a server and add your Discord bot to it. It is intended that only you and your Discord bot are added to the server as anyone in the server will be able to send and receive messages as if they were you.
 
 Commands can be sent to the bot in the bot channel. The default name for this channel is `bot` but this can be changed in the config file.
 
 Type `!help` to get a list of commands.
 
-Comunication between you and a Steam friend is done using binds. A bind is simply a link between a channel ID and a Steam ID. When you bind a channel to a user they become linked, any messages sent in the channel will be forwarded to the Steam user and any message sent by the steam user will be forwarded to the channel.
+Communication between you and a Steam friend is done using binds. A bind is simply a link between a channel ID and a Steam ID. When you bind a channel to a user they become linked, any messages sent in the channel will be forwarded to the Steam user and any message sent by the steam user will be forwarded to the channel.
 
 Note `channel name` can always be substituted with `channel ID` and `Steam name` can always be substituted with `Steam ID`
 
