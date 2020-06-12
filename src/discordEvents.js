@@ -84,3 +84,7 @@ discordBot.on("messageUpdate", (oldMessage, newMessage) => {
         }
     }
 });
+
+discordBot.on('error', (err) => {
+   console.log(err.message);
+});
